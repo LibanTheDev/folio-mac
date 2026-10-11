@@ -33,17 +33,17 @@ struct HomeView: View {
             Text(Date().formatted(.dateTime.weekday(.wide).month(.wide).day()).uppercased())
                 .font(.system(size: 10, weight: .semibold))
                 .tracking(0.8)
-                .foregroundStyle(Theme.muted)
-            Text(part).font(Theme.serif(32, .medium))
+                .foregroundStyle(DS.textSecondary)
+            Text(part).font(DS.serif(32, .medium))
         }
     }
 
     private var welcome: some View {
-        Card(padding: 24) {
+        GlassCard(padding: 24) {
             VStack(alignment: .leading, spacing: 14) {
-                Text("Welcome to Folio").font(Theme.serif(22, .medium))
+                Text("Welcome to Folio").font(DS.serif(22, .medium))
                 Text("A calm, private home for your reading life. Your data stays on this Mac. No ads, no feed, no tracking.")
-                    .foregroundStyle(Theme.muted)
+                    .foregroundStyle(DS.textSecondary)
                 HStack(spacing: 10) {
                     Button { library.importGoodreads() } label: {
                         Label("Import from Goodreads", systemImage: "square.and.arrow.down")
@@ -51,13 +51,13 @@ struct HomeView: View {
                     .buttonStyle(PrimaryButtonStyle())
                     .fixedSize()
                     Button { app.go(.discover) } label: { Label("Discover Books", systemImage: "safari") }
-                        .buttonStyle(GhostButtonStyle())
+                        .buttonStyle(GlassButtonStyle())
                     Button { library.presentAddBook() } label: { Label("Add Manually", systemImage: "plus") }
-                        .buttonStyle(GhostButtonStyle())
+                        .buttonStyle(GlassButtonStyle())
                 }
                 Text("On Goodreads: My Books → Import and export → Export Library, then choose the downloaded CSV.")
                     .font(.caption)
-                    .foregroundStyle(Theme.muted)
+                    .foregroundStyle(DS.textSecondary)
             }
         }
     }
@@ -67,7 +67,7 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 14) {
             SectionHeader(title: "Currently Reading", subtitle: reading.isEmpty ? nil : "\(reading.count)")
             if reading.isEmpty {
-                Text("Nothing in progress. Pick something from Up Next.").foregroundStyle(Theme.muted)
+                Text("Nothing in progress. Pick something from Up Next.").foregroundStyle(DS.textSecondary)
             } else {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 330), spacing: 14)], spacing: 14) {
                     ForEach(reading) { ReadingCard(book: $0, selected: app.selectedBook == $0.id) }
@@ -83,7 +83,7 @@ struct HomeView: View {
                 HStack {
                     SectionHeader(title: title)
                     Button("See all") { app.show(more) }
-                        .buttonStyle(GhostButtonStyle())
+                        .buttonStyle(GlassButtonStyle())
                 }
                 ScrollView(.horizontal) {
                     HStack(alignment: .top, spacing: 20) {
@@ -115,19 +115,19 @@ private struct ReadingCard: View {
             CoverView(book: book).frame(width: 66)
             VStack(alignment: .leading, spacing: 4) {
                 if let started = book.dateStarted {
-                    Text("Started \(started.numericString)").font(.system(size: 10)).foregroundStyle(Theme.muted)
+                    Text("Started \(started.numericString)").font(.system(size: 10)).foregroundStyle(DS.textSecondary)
                 }
                 Text(book.title).font(.system(size: 14, weight: .semibold)).lineLimit(2)
-                Text(book.authorLine).font(.system(size: 12)).foregroundStyle(Theme.muted).lineLimit(1)
+                Text(book.authorLine).font(.system(size: 12)).foregroundStyle(DS.textSecondary).lineLimit(1)
                 Spacer(minLength: 6)
                 ProgressBar(value: book.progress)
                 HStack {
                     Text(book.pageCount.map { "p. \(book.currentPage) of \($0) · \(Int(book.progress * 100))%" } ?? "p. \(book.currentPage)")
                         .font(.system(size: 10.5).monospacedDigit())
-                        .foregroundStyle(Theme.muted)
+                        .foregroundStyle(DS.textSecondary)
                     Spacer()
                     Button("Update") { page = String(book.currentPage); showingUpdate = true }
-                        .buttonStyle(GhostButtonStyle())
+                        .buttonStyle(GlassButtonStyle())
                         .popover(isPresented: $showingUpdate, arrowEdge: .bottom) {
                             VStack(alignment: .leading, spacing: 10) {
                                 Text("What page are you on?").font(.headline)
@@ -151,9 +151,7 @@ private struct ReadingCard: View {
         }
         .frame(height: 99)
         .padding(14)
-        .background(Theme.card, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous)
-            .strokeBorder(selected ? Theme.accent : Theme.border, lineWidth: selected ? 1.5 : 1))
+        .hoverGlass(selected: selected)
         .contentShape(Rectangle())
         .onTapGesture { openBook(book.id) }
     }
@@ -172,23 +170,23 @@ struct GoalCard: View {
         let goal = library.goals[year] ?? 0
         let done = library.finished(in: year).count
         let fraction = goal > 0 ? min(1, Double(done) / Double(goal)) : 0
-        Card {
+        GlassCard {
             HStack(spacing: 20) {
                 ZStack {
-                    Circle().stroke(Theme.accentSoft, lineWidth: 9)
+                    Circle().stroke(DS.fill, lineWidth: 9)
                     Circle().trim(from: 0, to: fraction)
-                        .stroke(Theme.accent, style: StrokeStyle(lineWidth: 9, lineCap: .round))
+                        .stroke(DS.accent, style: StrokeStyle(lineWidth: 9, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                         .animation(.spring, value: fraction)
                     VStack(spacing: 0) {
-                        Text("\(done)").font(Theme.serif(26, .semibold).monospacedDigit())
-                        if goal > 0 { Text("of \(goal)").font(.system(size: 10)).foregroundStyle(Theme.muted) }
+                        Text("\(done)").font(DS.serif(26, .semibold).monospacedDigit())
+                        if goal > 0 { Text("of \(goal)").font(.system(size: 10)).foregroundStyle(DS.textSecondary) }
                     }
                 }
                 .frame(width: 88, height: 88)
                 VStack(alignment: .leading, spacing: 6) {
                     Text("\(String(year)) Reading Challenge").font(.system(size: 13, weight: .semibold))
-                    Text(paceMessage(done: done, goal: goal)).font(.system(size: 12)).foregroundStyle(Theme.muted)
+                    Text(paceMessage(done: done, goal: goal)).font(.system(size: 12)).foregroundStyle(DS.textSecondary)
                     Stepper(value: Binding(get: { goal }, set: { library.goals[year] = max(0, $0) }), in: 0...500) {
                         Text(goal == 0 ? "Set a goal" : "Goal: \(goal) books").font(.system(size: 12))
                     }
@@ -225,21 +223,21 @@ private struct StreakCard: View {
         let weekStart = cal.date(byAdding: .day, value: -6, to: cal.startOfDay(for: Date()))!
         let last7 = (0..<7).map { cal.date(byAdding: .day, value: $0, to: weekStart)! }
 
-        return Card {
+        return GlassCard {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(spacing: 6) {
-                    Image(systemName: "flame").foregroundStyle(streak > 0 ? Theme.accent : Theme.faint)
+                    Image(systemName: "flame").foregroundStyle(streak > 0 ? DS.accent : DS.textTertiary)
                     Text(streak == 1 ? "1-day streak" : "\(streak)-day streak").font(.system(size: 13, weight: .semibold))
                 }
                 Text("Log your page any day you read.")
-                    .font(.system(size: 12)).foregroundStyle(Theme.muted)
+                    .font(.system(size: 12)).foregroundStyle(DS.textSecondary)
                 HStack(spacing: 9) {
                     ForEach(last7, id: \.self) { d in
                         VStack(spacing: 5) {
                             Circle()
-                                .fill(days.contains(d) ? Theme.accent : Theme.accentSoft)
+                                .fill(days.contains(d) ? DS.accent : DS.fill)
                                 .frame(width: 18, height: 18)
-                            Text(d.formatted(.dateTime.weekday(.narrow))).font(.system(size: 9.5)).foregroundStyle(Theme.muted)
+                            Text(d.formatted(.dateTime.weekday(.narrow))).font(.system(size: 9.5)).foregroundStyle(DS.textSecondary)
                         }
                     }
                 }

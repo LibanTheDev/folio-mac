@@ -18,7 +18,7 @@ struct FolioApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var library = Library()
     @StateObject private var app = AppState()
-    @AppStorage("appearance") private var appearance = Appearance.light
+    @AppStorage("appearance") private var appearance = Appearance.system
 
     var body: some Scene {
         WindowGroup("Folio") {
@@ -61,12 +61,12 @@ struct FolioApp: App {
 }
 
 enum Appearance: String, CaseIterable, Identifiable {
-    case light, dark, system
+    case system, light, dark
     var id: String { rawValue }
     var title: String {
         switch self {
-        case .light: "Paper (Light)"
-        case .dark: "Night (Dark)"
+        case .light: "Light"
+        case .dark: "Dark"
         case .system: "Match System"
         }
     }

@@ -5,6 +5,7 @@ let package = Package(
     name: "Folio",
     platforms: [.macOS(.v14)],
     targets: [
-        .executableTarget(name: "Folio", path: "Sources/Folio")
+        .executableTarget(name: "Folio", path: "Sources/Folio"),
+        .testTarget(name: "FolioTests", dependencies: ["Folio"], path: "Tests/FolioTests", resources: [.copy("Fixtures")]),
     ]
 )

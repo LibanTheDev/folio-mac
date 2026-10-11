@@ -102,9 +102,9 @@ private struct ResultTile: View {
                 .offset(y: hovering ? -3 : 0)
                 .animation(.spring(duration: 0.25), value: hovering)
             Text(doc.title).font(.system(size: 12.5, weight: .semibold)).lineLimit(2).padding(.top, 2)
-            Text(doc.authorLine).font(.system(size: 11)).foregroundStyle(Theme.muted).lineLimit(1)
+            Text(doc.authorLine).font(.system(size: 11)).foregroundStyle(DS.textSecondary).lineLimit(1)
             if let y = doc.first_publish_year {
-                Text(String(y)).font(.system(size: 10)).foregroundStyle(Theme.faint)
+                Text(String(y)).font(.system(size: 10)).foregroundStyle(DS.textTertiary)
             }
         }
         .contentShape(Rectangle())
@@ -128,7 +128,7 @@ private struct AddMenu: View {
         }
         .menuStyle(.button)
         .buttonStyle(.borderedProminent)
-        .tint(Theme.accent)
+        .tint(DS.accent)
         .controlSize(.small)
         .fixedSize()
         .help("Add to Want to Read (hold for more shelves)")
@@ -151,8 +151,8 @@ struct RemoteBookSheet: View {
                               urls: [doc.coverURL, doc.cover_i.flatMap { URL(string: "https://covers.openlibrary.org/b/id/\($0)-L.jpg") }].compactMap { $0 })
                         .frame(width: 160)
                     VStack(alignment: .leading, spacing: 10) {
-                        Text(doc.title).font(Theme.serif(25, .medium))
-                        Text(doc.authorLine).font(.system(size: 14)).foregroundStyle(Theme.muted)
+                        Text(doc.title).font(DS.serif(25, .medium))
+                        Text(doc.authorLine).font(.system(size: 14)).foregroundStyle(DS.textSecondary)
                         HStack(spacing: 12) {
                             if let y = doc.first_publish_year { Text(String(y)) }
                             if let p = doc.number_of_pages_median { Text("\(p) pages") }
@@ -165,7 +165,7 @@ struct RemoteBookSheet: View {
                         if loadingSynopsis {
                             ProgressView().controlSize(.small)
                         } else if let synopsis, !synopsis.isEmpty {
-                            Text(synopsis).font(.system(size: 12.5)).lineSpacing(2.5).textSelection(.enabled).foregroundStyle(Theme.ink.opacity(0.85))
+                            Text(synopsis).font(.system(size: 12.5)).lineSpacing(2.5).textSelection(.enabled).foregroundStyle(DS.textPrimary.opacity(0.85))
                         } else {
                             Text("No description available.").foregroundStyle(.tertiary)
                         }
@@ -180,9 +180,9 @@ struct RemoteBookSheet: View {
                     Text("In your library").foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("Close") { dismiss() }.keyboardShortcut(.cancelAction).buttonStyle(GhostButtonStyle())
+                Button("Close") { dismiss() }.keyboardShortcut(.cancelAction).buttonStyle(GlassButtonStyle())
                 ForEach([ReadingStatus.read, .reading]) { s in
-                    Button(s.title) { library.add(Book(from: doc), status: s); dismiss() }.buttonStyle(GhostButtonStyle())
+                    Button(s.title) { library.add(Book(from: doc), status: s); dismiss() }.buttonStyle(GlassButtonStyle())
                 }
                 Button("Want to Read") { library.add(Book(from: doc), status: .wantToRead); dismiss() }
                     .keyboardShortcut(.defaultAction)
@@ -190,10 +190,10 @@ struct RemoteBookSheet: View {
                     .fixedSize()
             }
             .padding(16)
-            .background(Theme.sidebar)
         }
         .frame(width: 680, height: 460)
-        .background(Theme.canvas)
+        .background(VisualEffectView(material: .popover, blending: .behindWindow))
+        .background(DS.background.opacity(0.5))
         .task {
             synopsis = await OpenLibrary.description(workKey: doc.key)
             loadingSynopsis = false
@@ -214,44 +214,46 @@ struct AddBookSheet: View {
         _status = State(initialValue: initialStatus)
     }
 
+    private var canAdd: Bool { !title.trimmingCharacters(in: .whitespaces).isEmpty }
+
     var body: some View {
-        VStack(spacing: 0) {
-            Form {
-                Section {
-                    TextField("Title", text: $title)
-                    TextField("Author", text: $author)
-                    TextField("Pages", text: $pages)
-                    TextField("ISBN (optional, used for the cover)", text: $isbn)
-                    Picker("Shelf", selection: $status) {
-                        ForEach(ReadingStatus.allCases) { Text($0.title).tag($0) }
-                    }
-                } header: {
-                    Text("Add a Book").font(Theme.serif(20, .medium)).foregroundStyle(Theme.ink)
-                } footer: {
-                    Text("Tip: Discover finds most books with covers and details filled in.")
-                        .font(.caption).foregroundStyle(.secondary)
+        SheetContainer(title: "Add a Book", subtitle: "Tip: Discover finds most books with covers and details filled in.") {
+            VStack(alignment: .leading, spacing: 12) {
+                FieldRow(label: "Title") { TextField("e.g. The Outsiders", text: $title).textFieldStyle(GlassFieldStyle()) }
+                FieldRow(label: "Author") { TextField("Separate several with commas", text: $author).textFieldStyle(GlassFieldStyle()) }
+                HStack(spacing: 12) {
+                    FieldRow(label: "Pages") { TextField("—", text: $pages).textFieldStyle(GlassFieldStyle()) }
+                        .frame(width: 100)
+                    FieldRow(label: "ISBN (optional, used for the cover)") { TextField("978…", text: $isbn).textFieldStyle(GlassFieldStyle()) }
+                }
+                FieldRow(label: "Shelf") {
+                    GlassSegmented(selection: $status, options: ReadingStatus.allCases) { Text($0.shortTitle) }
                 }
             }
-            .formStyle(.grouped)
-            HStack {
-                Spacer()
-                Button("Cancel") { dismiss() }.keyboardShortcut(.cancelAction)
-                Button("Add") {
-                    var b = Book(title: title.trimmingCharacters(in: .whitespaces),
-                                 authors: author.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) },
-                                 isbn: isbn.filter { $0.isNumber || $0 == "X" }.nilIfEmpty,
-                                 pageCount: Int(pages))
-                    b.status = .wantToRead
-                    let id = library.add(b, status: status)
-                    dismiss()
-                    Task { await library.enrich(id) }
-                }
+            .padding(.horizontal, 22)
+            .padding(.bottom, 18)
+        } footer: {
+            Spacer()
+            Button("Cancel") { dismiss() }
+                .keyboardShortcut(.cancelAction)
+                .buttonStyle(GlassButtonStyle())
+            Button("Add Book", action: add)
                 .keyboardShortcut(.defaultAction)
-                .disabled(title.trimmingCharacters(in: .whitespaces).isEmpty)
-            }
-            .padding([.horizontal, .bottom], 20)
+                .buttonStyle(PrimaryButtonStyle(fullWidth: false))
+                .disabled(!canAdd)
         }
-        .frame(width: 440)
+        .frame(width: 460)
+    }
+
+    private func add() {
+        guard canAdd else { return }
+        let b = Book(title: title.trimmingCharacters(in: .whitespaces),
+                     authors: author.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) },
+                     isbn: isbn.filter { $0.isNumber || $0 == "X" }.nilIfEmpty,
+                     pageCount: Int(pages))
+        let id = library.add(b, status: status)
+        dismiss()
+        Task { await library.enrich(id) }
     }
 }
 

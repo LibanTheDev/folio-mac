@@ -121,13 +121,12 @@ struct LibraryView: View {
     private func header(count: Int) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             PageHeader(title: title, caption: "Total: \(count)") {
-                HStack(spacing: 2) {
-                    ForEach(ViewMode.allCases) { m in
-                        Button { mode = m } label: { Image(systemName: m.symbol) }
-                            .buttonStyle(IconButtonStyle(selected: effectiveMode == m))
-                            .disabled(m == .board && isStatusScope)
-                            .help(m == .board && isStatusScope ? "Board shows all shelves. Open All Books to use it." : m.title)
-                    }
+                GlassSegmented(selection: Binding(get: { effectiveMode }, set: { mode = $0 }),
+                               options: ViewMode.allCases,
+                               disabled: { $0 == .board && isStatusScope }) { m in
+                    Image(systemName: m.symbol)
+                        .help(m == .board && isStatusScope ? "Board shows all shelves. Open All Books to use it." : m.title)
+                        .accessibilityLabel(m.title)
                 }
             }
             HStack(spacing: 6) {
@@ -145,7 +144,7 @@ struct LibraryView: View {
                     Label("Filter", systemImage: "plus").font(.system(size: 12))
                 }
                 .menuStyle(.button)
-                .buttonStyle(GhostButtonStyle())
+                .buttonStyle(GlassButtonStyle())
                 .menuIndicator(.hidden)
                 .fixedSize()
 
@@ -169,7 +168,7 @@ struct LibraryView: View {
                         Label(sortKey.rawValue, systemImage: "arrow.up.arrow.down").font(.system(size: 12))
                     }
                     .menuStyle(.button)
-                    .buttonStyle(GhostButtonStyle())
+                    .buttonStyle(GlassButtonStyle())
                     .menuIndicator(.hidden)
                     .fixedSize()
                 }
@@ -181,15 +180,15 @@ struct LibraryView: View {
         VStack(spacing: 14) {
             Image(systemName: "books.vertical")
                 .font(.system(size: 34, weight: .light))
-                .foregroundStyle(Theme.faint)
-            Text("No books here yet").font(Theme.serif(22, .medium))
+                .foregroundStyle(DS.textTertiary)
+            Text("No books here yet").font(DS.serif(22, .medium))
             Text("Find books in Discover, add one by hand, or bring your whole Goodreads history.")
-                .foregroundStyle(Theme.muted)
+                .foregroundStyle(DS.textSecondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: 360)
             HStack {
-                Button("Import from Goodreads…") { library.importGoodreads() }.buttonStyle(GhostButtonStyle())
-                Button("Discover Books") { app.go(.discover) }.buttonStyle(GhostButtonStyle())
+                Button("Import from Goodreads…") { library.importGoodreads() }.buttonStyle(GlassButtonStyle())
+                Button("Discover Books") { app.go(.discover) }.buttonStyle(GlassButtonStyle())
             }
             .padding(.top, 4)
         }
@@ -247,7 +246,7 @@ struct LibraryView: View {
                 .padding(.vertical, 3)
             }
             .width(min: 180, ideal: 260)
-            TableColumn("Author", value: \.sortAuthor) { Text($0.authorLine).lineLimit(1).foregroundStyle(Theme.muted) }
+            TableColumn("Author", value: \.sortAuthor) { Text($0.authorLine).lineLimit(1).foregroundStyle(DS.textSecondary) }
                 .width(min: 100, ideal: 150)
             TableColumn("Rating", value: \.ratingValue) { StarRating(value: $0.rating) }
                 .width(80)
@@ -306,10 +305,10 @@ private struct BoardColumn<M: View>: View {
                 Spacer()
                 Image(systemName: "line.3.horizontal.decrease")
                     .font(.system(size: 9))
-                    .foregroundStyle(Theme.faint)
+                    .foregroundStyle(DS.textTertiary)
                 Text("\(books.count)")
                     .font(.system(size: 11).monospacedDigit())
-                    .foregroundStyle(Theme.muted)
+                    .foregroundStyle(DS.textSecondary)
             }
             .padding(.horizontal, 4)
 
@@ -326,11 +325,12 @@ private struct BoardColumn<M: View>: View {
                     Button { library.presentAddBook(status) } label: {
                         Label("Add a Book", systemImage: "plus")
                             .font(.system(size: 11.5))
-                            .foregroundStyle(Theme.muted)
+                            .foregroundStyle(DS.textSecondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, 10)
                             .padding(.vertical, 8)
-                            .background(Theme.accentSoft.opacity(0.35), in: RoundedRectangle(cornerRadius: 6))
+                            .background(RoundedRectangle(cornerRadius: DS.Radius.control, style: .continuous)
+                                .strokeBorder(DS.strokeStrong, style: StrokeStyle(lineWidth: 1, dash: [4, 3])))
                             .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
@@ -339,12 +339,12 @@ private struct BoardColumn<M: View>: View {
             }
             .scrollIndicators(.never)
             .background(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(targeted ? Theme.accentSoft.opacity(0.7) : Theme.column)
+                RoundedRectangle(cornerRadius: DS.Radius.panel, style: .continuous)
+                    .fill(targeted ? DS.selection : DS.well)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .strokeBorder(targeted ? Theme.accent.opacity(0.6) : Theme.border, style: StrokeStyle(lineWidth: 1, dash: targeted ? [5, 4] : []))
+                RoundedRectangle(cornerRadius: DS.Radius.panel, style: .continuous)
+                    .strokeBorder(targeted ? DS.accent.opacity(0.7) : DS.stroke.opacity(0.6), style: StrokeStyle(lineWidth: targeted ? 1.5 : 1, dash: targeted ? [6, 4] : []))
             )
         }
         .frame(width: 240)
@@ -355,7 +355,8 @@ private struct BoardColumn<M: View>: View {
             withAnimation(.snappy(duration: 0.25)) { ids.forEach { library.setStatus($0, status) } }
             return true
         } isTargeted: { targeted = $0 }
-        .animation(.easeOut(duration: 0.15), value: targeted)
+        .scaleEffect(targeted && !Motion.reduceMotion ? 1.01 : 1)
+        .motion(Motion.gentle, value: targeted)
     }
 }
 
@@ -381,7 +382,7 @@ struct BoardCard: View {
                 VStack(alignment: .leading, spacing: 3) {
                     if let r = book.rating { StarRating(value: r, size: 8.5) }
                     if let dateLine {
-                        Text(dateLine).font(.system(size: 9.5)).foregroundStyle(Theme.muted)
+                        Text(dateLine).font(.system(size: 9.5)).foregroundStyle(DS.textSecondary)
                     }
                     Text(book.title)
                         .font(.system(size: 12.5, weight: .semibold))
@@ -389,14 +390,14 @@ struct BoardCard: View {
                         .padding(.top, 1)
                     Text(book.authorLine)
                         .font(.system(size: 10.5))
-                        .foregroundStyle(Theme.muted)
+                        .foregroundStyle(DS.textSecondary)
                         .lineLimit(1)
                     if book.status == .reading {
                         HStack(spacing: 6) {
                             ProgressBar(value: book.progress, height: 3)
                             Text("\(Int(book.progress * 100))%")
                                 .font(.system(size: 9).monospacedDigit())
-                                .foregroundStyle(Theme.muted)
+                                .foregroundStyle(DS.textSecondary)
                         }
                         .padding(.top, 4)
                     }
@@ -413,25 +414,20 @@ struct BoardCard: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Theme.card, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .strokeBorder(selected ? Theme.accent : hovering ? Theme.faint : Theme.border, lineWidth: selected ? 1.5 : 1)
-        )
+        .glass(.card, cornerRadius: DS.Radius.card - 2, hovering: hovering, selected: selected)
         .overlay(alignment: .topTrailing) {
             Button { library.modify(book.id) { $0.favorite.toggle() } } label: {
                 Image(systemName: book.favorite ? "heart.fill" : "heart")
                     .font(.system(size: 11))
-                    .foregroundStyle(book.favorite ? Theme.heart : Theme.faint)
+                    .foregroundStyle(book.favorite ? DS.favorite : DS.textTertiary)
             }
             .buttonStyle(.plain)
             .padding(8)
             .help(book.favorite ? "Remove from Favourites" : "Add to Favourites")
         }
-        .shadow(color: .black.opacity(hovering ? 0.07 : 0.03), radius: hovering ? 5 : 2, y: hovering ? 2 : 1)
         .contentShape(Rectangle())
         .onHover { hovering = $0 }
-        .animation(.easeOut(duration: 0.15), value: hovering)
+        .motion(Motion.gentle, value: hovering)
     }
 }
 
@@ -447,16 +443,16 @@ struct BookTile: View {
                     if book.favorite {
                         Image(systemName: "heart.fill")
                             .font(.system(size: 9))
-                            .foregroundStyle(Theme.onAccent)
+                            .foregroundStyle(DS.onAccent)
                             .padding(5)
-                            .background(Theme.heart, in: Circle())
+                            .background(DS.favorite, in: Circle())
                             .padding(6)
                     }
                 }
                 .padding(3)
                 .overlay(
                     RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .strokeBorder(selected ? Theme.accent : .clear, lineWidth: 2)
+                        .strokeBorder(selected ? DS.accent : .clear, lineWidth: 2)
                 )
                 .offset(y: hovering ? -3 : 0)
                 .animation(.spring(duration: 0.25), value: hovering)
@@ -466,7 +462,7 @@ struct BookTile: View {
                 .padding(.top, 2)
             Text(book.authorLine)
                 .font(.system(size: 11))
-                .foregroundStyle(Theme.muted)
+                .foregroundStyle(DS.textSecondary)
                 .lineLimit(1)
             if book.status == .reading {
                 ProgressBar(value: book.progress, height: 3).padding(.top, 2)

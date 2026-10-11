@@ -16,7 +16,6 @@ struct InspectorView: View {
                     }
             }
         }
-        .background(Theme.canvas)
     }
 }
 
@@ -42,7 +41,7 @@ private struct InspectorContent: View {
                         Text("Hide")
                     }
                     .font(.system(size: 12))
-                    .foregroundStyle(Theme.muted)
+                    .foregroundStyle(DS.textSecondary)
                 }
                 .buttonStyle(.plain)
                 Spacer()
@@ -56,7 +55,7 @@ private struct InspectorContent: View {
                     Divider()
                     Button("Remove from Library…", role: .destructive) { confirmDelete = true }
                 } label: {
-                    Image(systemName: "ellipsis").foregroundStyle(Theme.muted)
+                    Image(systemName: "ellipsis").foregroundStyle(DS.textSecondary)
                 }
                 .menuStyle(.borderlessButton)
                 .menuIndicator(.hidden)
@@ -64,7 +63,7 @@ private struct InspectorContent: View {
             }
             .padding(.horizontal, 18)
             .frame(height: 52)
-            Rectangle().fill(Theme.border).frame(height: 1)
+            Rectangle().fill(DS.stroke).frame(height: 1)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
@@ -103,14 +102,14 @@ private struct InspectorContent: View {
                 .padding(.top, 20)
             HStack(alignment: .top) {
                 Text(book.title)
-                    .font(Theme.serif(21, .medium))
+                    .font(DS.serif(21, .medium))
                     .textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
                 Spacer(minLength: 8)
                 Button { book.favorite.toggle() } label: {
                     Image(systemName: book.favorite ? "heart.fill" : "heart")
                         .font(.system(size: 17))
-                        .foregroundStyle(book.favorite ? Theme.heart : Theme.faint)
+                        .foregroundStyle(book.favorite ? DS.favorite : DS.textTertiary)
                 }
                 .buttonStyle(.plain)
                 .padding(.top, 3)
@@ -118,7 +117,7 @@ private struct InspectorContent: View {
             .padding(.top, 18)
             Text(book.authorLine)
                 .font(.system(size: 13))
-                .foregroundStyle(Theme.muted)
+                .foregroundStyle(DS.textSecondary)
                 .padding(.top, 3)
         }
         .padding(.horizontal, 20)
@@ -149,7 +148,7 @@ private struct InspectorContent: View {
                     if let r = book.rating {
                         Text(r.formatted(.number.precision(.fractionLength(1))))
                             .font(.system(size: 11).monospacedDigit())
-                            .foregroundStyle(Theme.muted)
+                            .foregroundStyle(DS.textSecondary)
                     }
                 }
             }
@@ -176,7 +175,7 @@ private struct InspectorContent: View {
     private func prop<C: View>(_ label: String, @ViewBuilder _ content: () -> C) -> some View {
         HStack(spacing: 8) {
             Text(label)
-                .foregroundStyle(Theme.muted)
+                .foregroundStyle(DS.textSecondary)
                 .frame(width: 78, alignment: .leading)
             content()
             Spacer(minLength: 0)
@@ -194,11 +193,11 @@ private struct InspectorContent: View {
                     .fixedSize()
                 Button { date.wrappedValue = nil } label: { Image(systemName: "xmark.circle.fill") }
                     .buttonStyle(.plain)
-                    .foregroundStyle(Theme.faint)
+                    .foregroundStyle(DS.textTertiary)
             } else {
                 Button("Set date") { date.wrappedValue = Date() }
                     .buttonStyle(.plain)
-                    .foregroundStyle(Theme.faint)
+                    .foregroundStyle(DS.textTertiary)
             }
         }
     }
@@ -216,7 +215,7 @@ private struct InspectorContent: View {
             ProgressBar(value: book.progress, height: 6)
             Text(progressLine)
                 .font(.system(size: 11))
-                .foregroundStyle(Theme.muted)
+                .foregroundStyle(DS.textSecondary)
             HStack(spacing: 6) {
                 TextField("Page", text: $pageInput)
                     .textFieldStyle(.roundedBorder)
@@ -224,7 +223,7 @@ private struct InspectorContent: View {
                     .frame(width: 64)
                     .onSubmit(logPage)
                 Button("Update", action: logPage)
-                    .buttonStyle(GhostButtonStyle())
+                    .buttonStyle(GlassButtonStyle())
                     .disabled(Int(pageInput) == nil)
                 Spacer()
                 Button("Finished") { library.setStatus(book.id, .read) }
@@ -233,8 +232,7 @@ private struct InspectorContent: View {
             }
         }
         .padding(14)
-        .background(Theme.card, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
-        .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous).strokeBorder(Theme.border))
+        .glass(.card, cornerRadius: DS.Radius.card - 2)
         .padding(.horizontal, 20)
         .padding(.bottom, 18)
     }
@@ -260,7 +258,7 @@ private struct InspectorContent: View {
     private func section<C: View>(_ key: String, _ title: String, count: Int = 0, @ViewBuilder _ content: () -> C) -> some View {
         let open = openSections.split(separator: ",").contains(Substring(key))
         return VStack(alignment: .leading, spacing: 0) {
-            Rectangle().fill(Theme.border).frame(height: 1)
+            Rectangle().fill(DS.stroke).frame(height: 1)
             Button {
                 var set = Set(openSections.split(separator: ",").map(String.init))
                 if open { set.remove(key) } else { set.insert(key) }
@@ -269,12 +267,12 @@ private struct InspectorContent: View {
                 HStack {
                     Text(title).font(.system(size: 12, weight: .semibold)).lineLimit(1)
                     if count > 0 {
-                        Text("\(count)").font(.system(size: 11)).foregroundStyle(Theme.muted)
+                        Text("\(count)").font(.system(size: 11)).foregroundStyle(DS.textSecondary)
                     }
                     Spacer()
                     Image(systemName: "chevron.down")
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(Theme.muted)
+                        .foregroundStyle(DS.textSecondary)
                         .rotationEffect(.degrees(open ? 0 : -90))
                 }
                 .padding(.horizontal, 20)
@@ -297,7 +295,7 @@ private struct InspectorContent: View {
                 Text(synopsis)
                     .font(.system(size: 11.5))
                     .lineSpacing(2.5)
-                    .foregroundStyle(Theme.ink.opacity(0.85))
+                    .foregroundStyle(DS.textPrimary.opacity(0.85))
                     .textSelection(.enabled)
                 let chips = Book.cleanLabels(book.subjects).prefix(8)
                 if !chips.isEmpty {
@@ -307,7 +305,7 @@ private struct InspectorContent: View {
         } else if book.synopsis == nil {
             ProgressView().controlSize(.small)
         } else {
-            Text("No description available.").font(.system(size: 11.5)).foregroundStyle(Theme.muted)
+            Text("No description available.").font(.system(size: 11.5)).foregroundStyle(DS.textSecondary)
         }
     }
 
@@ -316,22 +314,22 @@ private struct InspectorContent: View {
             ForEach(book.notes.sorted { ($0.page ?? 0, $0.created) < ($1.page ?? 0, $1.created) }) { note in
                 HStack(alignment: .top, spacing: 10) {
                     Rectangle()
-                        .fill(note.isQuote ? Theme.accent : Theme.faint)
+                        .fill(note.isQuote ? DS.accent : DS.textTertiary)
                         .frame(width: 2)
                     VStack(alignment: .leading, spacing: 3) {
                         Text(note.isQuote ? "“\(note.text)”" : note.text)
-                            .font(note.isQuote ? Theme.serif(12.5).italic() : .system(size: 11.5))
+                            .font(note.isQuote ? DS.serif(12.5).italic() : .system(size: 11.5))
                             .textSelection(.enabled)
                         Text([note.page.map { "p. \($0)" }, note.created.shortString].compactMap { $0 }.joined(separator: " · "))
                             .font(.system(size: 10))
-                            .foregroundStyle(Theme.muted)
+                            .foregroundStyle(DS.textSecondary)
                     }
                     Spacer(minLength: 0)
                     Button { book.notes.removeAll { $0.id == note.id } } label: {
                         Image(systemName: "xmark").font(.system(size: 8, weight: .bold))
                     }
                     .buttonStyle(.plain)
-                    .foregroundStyle(Theme.faint)
+                    .foregroundStyle(DS.textTertiary)
                 }
                 .fixedSize(horizontal: false, vertical: true)
             }
@@ -341,8 +339,7 @@ private struct InspectorContent: View {
                     .font(.system(size: 11.5))
                     .lineLimit(1...5)
                     .padding(8)
-                    .background(Theme.card, in: RoundedRectangle(cornerRadius: 6))
-                    .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Theme.border))
+                    .glass(.control, cornerRadius: DS.Radius.small + 1)
                 HStack(spacing: 6) {
                     Picker("", selection: $noteIsQuote) {
                         Text("Quote").tag(true)
@@ -358,7 +355,7 @@ private struct InspectorContent: View {
                         .frame(width: 44)
                     Spacer()
                     Button("Add", action: addNote)
-                        .buttonStyle(GhostButtonStyle())
+                        .buttonStyle(GlassButtonStyle())
                         .disabled(noteText.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
@@ -379,13 +376,12 @@ private struct InspectorContent: View {
             .scrollContentBackground(.hidden)
             .padding(6)
             .frame(minHeight: 110)
-            .background(Theme.card, in: RoundedRectangle(cornerRadius: 6))
-            .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Theme.border))
+            .glass(.control, cornerRadius: DS.Radius.small + 1)
             .overlay(alignment: .topLeading) {
                 if book.review.isEmpty {
                     Text("What did you think? Private to this Mac.")
                         .font(.system(size: 12))
-                        .foregroundStyle(Theme.faint)
+                        .foregroundStyle(DS.textTertiary)
                         .padding(.horizontal, 11).padding(.vertical, 6)
                         .allowsHitTesting(false)
                 }
@@ -401,12 +397,12 @@ private struct InspectorContent: View {
                         Image(systemName: "xmark").font(.system(size: 7, weight: .bold))
                     }
                     .buttonStyle(.plain)
-                    .foregroundStyle(Theme.muted)
+                    .foregroundStyle(DS.textSecondary)
                 }
                 .font(.system(size: 11))
                 .padding(.horizontal, 8).padding(.vertical, 4)
-                .background(Theme.chip, in: RoundedRectangle(cornerRadius: 5))
-                .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(Theme.border))
+                .background(DS.fill, in: RoundedRectangle(cornerRadius: 5))
+                .overlay(RoundedRectangle(cornerRadius: 5).strokeBorder(DS.stroke))
             }
             Menu {
                 ForEach(library.allTags.filter { !book.tags.contains($0) }, id: \.self) { tag in
@@ -458,9 +454,9 @@ private struct AuthorBooks: View {
                             .overlay(alignment: .bottomTrailing) {
                                 Image(systemName: b.status.symbol)
                                     .font(.system(size: 8, weight: .bold))
-                                    .foregroundStyle(Theme.onAccent)
+                                    .foregroundStyle(DS.onAccent)
                                     .padding(4)
-                                    .background(Theme.accent, in: Circle())
+                                    .background(DS.accent, in: Circle())
                                     .padding(3)
                             }
                     }
@@ -477,7 +473,7 @@ private struct AuthorBooks: View {
                 if !loaded && own.isEmpty {
                     ProgressView().controlSize(.small).frame(height: 93)
                 } else if loaded && own.isEmpty && others.isEmpty {
-                    Text("Nothing else found.").font(.system(size: 11)).foregroundStyle(Theme.muted)
+                    Text("Nothing else found.").font(.system(size: 11)).foregroundStyle(DS.textSecondary)
                 }
             }
             .padding(.vertical, 4)

@@ -29,7 +29,14 @@ struct CoverView: View {
             }
             .aspectRatio(2 / 3, contentMode: .fit)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous).strokeBorder(.black.opacity(0.08)))
+            .overlay(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous).strokeBorder(.black.opacity(0.10)))
+            .overlay(alignment: .leading) {
+                // Subtle spine highlight so covers read as physical objects.
+                LinearGradient(colors: [.white.opacity(0.22), .clear], startPoint: .leading, endPoint: .trailing)
+                    .frame(width: 6)
+                    .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+                    .allowsHitTesting(false)
+            }
             .shadow(color: .black.opacity(0.16), radius: 3, x: 1, y: 2)
     }
 }
@@ -131,7 +138,7 @@ struct StarRating: View {
                 let value = hover ?? rating ?? 0
                 Image(systemName: symbol(i, value))
                     .font(.system(size: size))
-                    .foregroundStyle(value >= Double(i) - 0.5 ? Theme.accent : Theme.faint)
+                    .foregroundStyle(value >= Double(i) - 0.5 ? DS.statusReading : DS.textTertiary.opacity(0.6))
                     .overlay {
                         if editable {
                             HStack(spacing: 0) {
@@ -171,55 +178,15 @@ extension StarRating {
 
 // MARK: - Misc
 
-struct ProgressBar: View {
-    var value: Double
-    var tint: Color = Theme.accent
-    var height: CGFloat = 5
-
-    var body: some View {
-        GeometryReader { geo in
-            ZStack(alignment: .leading) {
-                Capsule().fill(Theme.accentSoft)
-                Capsule().fill(tint).frame(width: max(height, geo.size.width * value))
-            }
-        }
-        .frame(height: height)
-    }
-}
-
 struct StatusBadge: View {
     let status: ReadingStatus
     var body: some View {
         Label(status.shortTitle, systemImage: status.symbol)
             .font(.system(size: 10, weight: .semibold))
             .padding(.horizontal, 7).padding(.vertical, 3)
-            .background(status.tint.opacity(0.14), in: Capsule())
+            .background(status.tint.opacity(0.13), in: Capsule())
+            .overlay(Capsule().strokeBorder(status.tint.opacity(0.18)))
             .foregroundStyle(status.tint)
-    }
-}
-
-struct Card<Content: View>: View {
-    var padding: CGFloat = 18
-    @ViewBuilder var content: Content
-    var body: some View {
-        content
-            .padding(padding)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Theme.card, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Theme.border))
-            .shadow(color: .black.opacity(0.03), radius: 2, y: 1)
-    }
-}
-
-struct SectionHeader: View {
-    let title: String
-    var subtitle: String?
-    var body: some View {
-        HStack(alignment: .firstTextBaseline) {
-            Text(title).font(Theme.serif(20, .medium)).foregroundStyle(Theme.ink)
-            if let subtitle { Text(subtitle).font(.callout).foregroundStyle(Theme.muted) }
-            Spacer()
-        }
     }
 }
 

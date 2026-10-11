@@ -1,0 +1,513 @@
+{
+  "books" : [
+    {
+      "authors" : [
+        "Andy Weir"
+      ],
+      "coverID" : 11200092,
+      "currentPage" : 212,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "dateStarted" : "2026-10-02T13:51:34Z",
+      "favorite" : false,
+      "id" : "A2C72753-62B9-4D9E-8F0D-2BF490BF224D",
+      "isbn" : "9780593135204",
+      "notes" : [
+
+      ],
+      "olWorkKey" : "\/works\/OL21745884W",
+      "pageCount" : 476,
+      "progressLog" : [
+        {
+          "date" : "2026-10-11T13:51:34Z",
+          "id" : "4D0FE455-D7BB-41C7-B573-9CFAA728C24A",
+          "page" : 212
+        },
+        {
+          "date" : "2026-10-10T13:51:34Z",
+          "id" : "F5EAF622-B9B8-48C8-9CC1-4084735DBBFD",
+          "page" : 192
+        },
+        {
+          "date" : "2026-10-09T13:51:34Z",
+          "id" : "22F8DC71-DE99-4759-ABDE-4C3F294EA7BD",
+          "page" : 172
+        },
+        {
+          "date" : "2026-10-08T13:51:34Z",
+          "id" : "9AD44CCD-FD34-4C02-A292-18326D556B6A",
+          "page" : 152
+        }
+      ],
+      "publishYear" : 2021,
+      "readCount" : 0,
+      "review" : "",
+      "status" : "reading",
+      "subjects" : [
+        "hard science-fiction",
+        "science-fiction",
+        "sci-fi",
+        "hard sci-fi",
+        "nyt:hardcover-fiction=2021-05-23",
+        "New York Times bestseller",
+        "New York Times reviewed",
+        "Fiction, science fiction, action & adventure"
+      ],
+      "synopsis" : "Ryland Grace is the sole survivor on a desperate, last-chance mission–and if he fails, humanity and the earth itself will perish. Except that right now, he doesn’t know that. He can’t even remember his own name, let alone the nature of his assignment or how to complete it. All he knows is that he’s been asleep for a very, very long time. And he’s just been awakened to find himself millions of miles from home, with nothing but two corpses for company.\n\nHis crewmates dead, his memories fuzzily returning, he realizes that an impossible task now confronts him. Alone on this tiny ship that’s been cobbled together by every government and space agency on the planet and hurled into the depths of space, it’s up to him to conquer an extinction-level threat to our species.\n\nAnd thanks to an unexpected ally, he just might have a chance.\n\nPart scientific mystery, part dazzling interstellar journey, *Project Hail Mary* is a tale of discovery, speculation, and survival to rival *The Martian*–while taking us to places it never dreamed of going.",
+      "tags" : [
+        "sci-fi"
+      ],
+      "title" : "Project Hail Mary"
+    },
+    {
+      "authors" : [
+        "Patrick Rothfuss"
+      ],
+      "currentPage" : 88,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "dateStarted" : "2026-10-02T13:51:34Z",
+      "favorite" : false,
+      "id" : "21402670-729A-4E03-9AE9-195EA0AED989",
+      "isbn" : "9780756404741",
+      "notes" : [
+
+      ],
+      "pageCount" : 662,
+      "progressLog" : [
+        {
+          "date" : "2026-10-11T13:51:34Z",
+          "id" : "9EDD4469-BF56-4523-AB93-DDFF2D6E46A1",
+          "page" : 88
+        },
+        {
+          "date" : "2026-10-10T13:51:34Z",
+          "id" : "9B52E012-AEAC-4D1C-8870-BE9CE27C6FCC",
+          "page" : 68
+        },
+        {
+          "date" : "2026-10-09T13:51:34Z",
+          "id" : "4C81B06B-62FD-4960-AD0D-EA44E93BC352",
+          "page" : 48
+        },
+        {
+          "date" : "2026-10-08T13:51:34Z",
+          "id" : "23885B65-A884-4A9D-A5D9-68B7CD88A4DD",
+          "page" : 28
+        }
+      ],
+      "readCount" : 0,
+      "review" : "",
+      "status" : "reading",
+      "subjects" : [
+
+      ],
+      "tags" : [
+        "fantasy"
+      ],
+      "title" : "The Name of the Wind"
+    },
+    {
+      "authors" : [
+        "Frank Herbert"
+      ],
+      "currentPage" : 617,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "dateFinished" : "2026-01-19T21:00:00Z",
+      "favorite" : true,
+      "id" : "D74C0409-3010-495B-A6D0-A17E8EE1ED81",
+      "isbn" : "9780441172719",
+      "notes" : [
+
+      ],
+      "pageCount" : 617,
+      "progressLog" : [
+
+      ],
+      "rating" : 4.5,
+      "readCount" : 1,
+      "review" : "",
+      "status" : "read",
+      "subjects" : [
+
+      ],
+      "tags" : [
+        "sci-fi"
+      ],
+      "title" : "Dune"
+    },
+    {
+      "authors" : [
+        "Tara Westover"
+      ],
+      "currentPage" : 334,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "dateFinished" : "2026-02-10T21:00:00Z",
+      "favorite" : false,
+      "id" : "EB530618-3FD5-45B9-BA18-EB79E64E1086",
+      "isbn" : "9780399590504",
+      "notes" : [
+
+      ],
+      "pageCount" : 334,
+      "progressLog" : [
+
+      ],
+      "rating" : 4,
+      "readCount" : 1,
+      "review" : "",
+      "status" : "read",
+      "subjects" : [
+
+      ],
+      "tags" : [
+        "memoir"
+      ],
+      "title" : "Educated"
+    },
+    {
+      "authors" : [
+        "Madeline Miller"
+      ],
+      "coverID" : 8739376,
+      "currentPage" : 393,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "dateFinished" : "2026-03-04T21:00:00Z",
+      "favorite" : true,
+      "id" : "DDE27EA2-11B4-45AA-93BC-5002405EF5FD",
+      "isbn" : "9780316556347",
+      "notes" : [
+
+      ],
+      "olWorkKey" : "\/works\/OL18012166W",
+      "pageCount" : 393,
+      "progressLog" : [
+
+      ],
+      "publishYear" : 2018,
+      "rating" : 5,
+      "readCount" : 1,
+      "review" : "",
+      "status" : "read",
+      "subjects" : [
+        "Fantasy",
+        "Mythology",
+        "Historical Fiction",
+        "Retellings",
+        "Gods",
+        "Fiction",
+        "Paranormal fiction",
+        "Fiction, fantasy, historical"
+      ],
+      "synopsis" : "In the house of Helios, god of the sun and mightiest of the Titans, a daughter is born. But Circe is a strange child--not powerful, like her father, nor viciously alluring like her mother. Turning to the world of mortals for companionship, she discovers that she does possess power--the power of witchcraft, which can transform rivals into monsters and menace the gods themselves.\n\nThreatened, Zeus banishes her to a deserted island, where she hones her occult craft, tames wild beasts and crosses paths with many of the most famous figures in all of mythology, including the Minotaur, Daedalus and his doomed son Icarus, the murderous Medea, and, of course, wily Odysseus.\n\nBut there is danger, too, for a woman who stands alone, and Circe unwittingly draws the wrath of both men and gods, ultimately finding herself pitted against one of the most terrifying and vengeful of the Olympians. To protect what she loves most, Circe must summon all her strength and choose, once and for all, whether she belongs with the gods she is born from, or the mortals she has come to love.\n\nWith unforgettably vivid characters, mesmerizing language and page-turning suspense, Circe is a triumph of storytelling, an intoxicating epic of family rivalry, palace intrigue, love and loss, as well as a celebration of indomitable female strength in a man's world.\n(source)",
+      "tags" : [
+        "fantasy"
+      ],
+      "title" : "Circe"
+    },
+    {
+      "authors" : [
+        "James Clear"
+      ],
+      "currentPage" : 320,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "dateFinished" : "2026-04-21T21:00:00Z",
+      "favorite" : false,
+      "id" : "4C181006-2ABE-4006-AEBE-3D3022F0FA4B",
+      "isbn" : "9780735211292",
+      "notes" : [
+
+      ],
+      "pageCount" : 320,
+      "progressLog" : [
+
+      ],
+      "rating" : 3.5,
+      "readCount" : 1,
+      "review" : "",
+      "status" : "read",
+      "subjects" : [
+
+      ],
+      "tags" : [
+        "nonfiction"
+      ],
+      "title" : "Atomic Habits"
+    },
+    {
+      "authors" : [
+        "Matt Haig"
+      ],
+      "currentPage" : 288,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "dateFinished" : "2026-06-13T21:00:00Z",
+      "favorite" : false,
+      "id" : "C34A8BDB-D32C-41AF-AE72-BC9B7C7F0713",
+      "isbn" : "9780525559474",
+      "notes" : [
+
+      ],
+      "pageCount" : 288,
+      "progressLog" : [
+
+      ],
+      "rating" : 3,
+      "readCount" : 1,
+      "review" : "",
+      "status" : "read",
+      "subjects" : [
+
+      ],
+      "tags" : [
+
+      ],
+      "title" : "The Midnight Library"
+    },
+    {
+      "authors" : [
+        "Kazuo Ishiguro"
+      ],
+      "currentPage" : 303,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "dateFinished" : "2026-08-01T21:00:00Z",
+      "favorite" : false,
+      "id" : "57AA0801-BB58-4692-8B96-8AC41F47DE1D",
+      "isbn" : "9780593318171",
+      "notes" : [
+
+      ],
+      "pageCount" : 303,
+      "progressLog" : [
+
+      ],
+      "rating" : 4.5,
+      "readCount" : 1,
+      "review" : "",
+      "status" : "read",
+      "subjects" : [
+
+      ],
+      "tags" : [
+        "sci-fi"
+      ],
+      "title" : "Klara and the Sun"
+    },
+    {
+      "authors" : [
+        "Yuval Noah Harari"
+      ],
+      "currentPage" : 443,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "dateFinished" : "2026-09-17T21:00:00Z",
+      "favorite" : false,
+      "id" : "17CEF70D-D636-4D2E-A734-6679AFD4346A",
+      "isbn" : "9780062316097",
+      "notes" : [
+
+      ],
+      "pageCount" : 443,
+      "progressLog" : [
+
+      ],
+      "rating" : 4,
+      "readCount" : 1,
+      "review" : "",
+      "status" : "read",
+      "subjects" : [
+
+      ],
+      "tags" : [
+        "nonfiction"
+      ],
+      "title" : "Sapiens"
+    },
+    {
+      "authors" : [
+        "Andy Weir"
+      ],
+      "currentPage" : 387,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "dateFinished" : "2025-06-30T21:00:00Z",
+      "favorite" : false,
+      "id" : "EAAFF24F-AB5E-4206-AD32-E2A6F3833203",
+      "isbn" : "9780553418026",
+      "notes" : [
+
+      ],
+      "pageCount" : 387,
+      "progressLog" : [
+
+      ],
+      "rating" : 4.5,
+      "readCount" : 1,
+      "review" : "",
+      "status" : "read",
+      "subjects" : [
+
+      ],
+      "tags" : [
+        "sci-fi"
+      ],
+      "title" : "The Martian"
+    },
+    {
+      "authors" : [
+        "Gabrielle Zevin"
+      ],
+      "coverID" : 12859975,
+      "currentPage" : 0,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "favorite" : false,
+      "id" : "CAC14B71-8A10-4089-A272-91A1DB8B6832",
+      "isbn" : "9780593321201",
+      "notes" : [
+
+      ],
+      "olWorkKey" : "\/works\/OL26004554W",
+      "pageCount" : 416,
+      "progressLog" : [
+
+      ],
+      "publishYear" : 2022,
+      "readCount" : 0,
+      "review" : "",
+      "status" : "wantToRead",
+      "subjects" : [
+        "American literature",
+        "nyt:combined-print-and-e-book-fiction=2022-07-24",
+        "New York Times bestseller",
+        "Modern fiction",
+        "Fiction"
+      ],
+      "synopsis" : "On a bitter-cold day, in the December of his junior year at Harvard, Sam Masur exits a subway car and sees, amid the hordes of people waiting on the platform, Sadie Green. He calls her name. For a moment, she pretends she hasn't heard him, but then, she turns, and a game begins: a legendary collaboration that will launch them to stardom. These friends, intimates since childhood, borrow money, beg favors, and, before even graduating college, they have created their first blockbuster, Ichigo. Overnight, the world is theirs. Not even twenty-five years old, Sam and Sadie are brilliant, successful, and rich, but these qualities won't protect them from their own creative ambitions or the betrayals of their hearts.\n\nSpanning thirty years, from Cambridge, Massachusetts, to Venice Beach, California, and lands in between and far beyond, Gabrielle Zevin's Tomorrow, and Tomorrow, and Tomorrow is a dazzling and intricately imagined novel that examines the multifarious nature of identity, disability, failure, the redemptive possibilities in play, and above all, our need to connect: to be loved and to love. Yes, it is a love story, but it is not one you have read before.",
+      "tags" : [
+
+      ],
+      "title" : "Tomorrow, and Tomorrow, and Tomorrow"
+    },
+    {
+      "authors" : [
+        "Cixin Liu"
+      ],
+      "currentPage" : 0,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "favorite" : false,
+      "id" : "9B9DB561-FCD1-4EEE-BB2C-1EE6D9273CE9",
+      "isbn" : "9780765382030",
+      "notes" : [
+
+      ],
+      "pageCount" : 400,
+      "progressLog" : [
+
+      ],
+      "readCount" : 0,
+      "review" : "",
+      "status" : "wantToRead",
+      "subjects" : [
+
+      ],
+      "tags" : [
+        "sci-fi"
+      ],
+      "title" : "The Three-Body Problem"
+    },
+    {
+      "authors" : [
+        "Susanna Clarke"
+      ],
+      "currentPage" : 0,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "favorite" : false,
+      "id" : "1B71569C-94A2-458B-A09C-43C79026279D",
+      "isbn" : "9781635575637",
+      "notes" : [
+
+      ],
+      "pageCount" : 272,
+      "progressLog" : [
+
+      ],
+      "readCount" : 0,
+      "review" : "",
+      "status" : "wantToRead",
+      "subjects" : [
+
+      ],
+      "tags" : [
+        "fantasy"
+      ],
+      "title" : "Piranesi"
+    },
+    {
+      "authors" : [
+        "David Foster Wallace"
+      ],
+      "currentPage" : 0,
+      "dateAdded" : "2026-10-11T13:51:34Z",
+      "favorite" : false,
+      "id" : "233EFD12-BDD7-4EEE-BC0B-DB95AA339CEC",
+      "isbn" : "9780316066525",
+      "notes" : [
+
+      ],
+      "pageCount" : 1079,
+      "progressLog" : [
+
+      ],
+      "rating" : 2,
+      "readCount" : 0,
+      "review" : "",
+      "status" : "dnf",
+      "subjects" : [
+
+      ],
+      "tags" : [
+
+      ],
+      "title" : "Infinite Jest"
+    },
+    {
+      "authors" : [
+        "Ursula K. Le Guin"
+      ],
+      "coverID" : 10618463,
+      "currentPage" : 0,
+      "dateAdded" : "2026-10-11T13:56:01Z",
+      "favorite" : false,
+      "id" : "4E3FAA47-B784-4FF9-8C2B-7FF4EFE952D1",
+      "isbn" : "9780441478026",
+      "notes" : [
+
+      ],
+      "olWorkKey" : "\/works\/OL59800W",
+      "pageCount" : 304,
+      "progressLog" : [
+
+      ],
+      "publishYear" : 1969,
+      "publisher" : "Raig Verd",
+      "readCount" : 0,
+      "review" : "",
+      "status" : "wantToRead",
+      "subjects" : [
+        "Ciencia-ficción",
+        "Hugo Award Winner",
+        "award:hugo_award=1970",
+        "award:hugo_award=novel",
+        "human nature",
+        "gender",
+        "space travel",
+        "ice age"
+      ],
+      "tags" : [
+
+      ],
+      "title" : "The Left Hand of Darkness"
+    }
+  ],
+  "goals" : {
+    "2026" : 20
+  },
+  "shelves" : [
+
+  ]
+}

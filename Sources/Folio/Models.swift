@@ -35,10 +35,10 @@ enum ReadingStatus: String, Codable, CaseIterable, Identifiable {
 
     var tint: Color {
         switch self {
-        case .wantToRead: .dynamic(light: 0x5E7391, dark: 0x9DB2CF)
-        case .reading: .dynamic(light: 0xB0702E, dark: 0xE2A766)
-        case .read: .dynamic(light: 0x5D7D4C, dark: 0x9CC08A)
-        case .dnf: .dynamic(light: 0x9A5446, dark: 0xD38D7E)
+        case .wantToRead: DS.statusWant
+        case .reading: DS.statusReading
+        case .read: DS.statusRead
+        case .dnf: DS.statusDNF
         }
     }
 

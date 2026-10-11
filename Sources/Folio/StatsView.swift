@@ -29,7 +29,7 @@ struct StatsView: View {
                         Label(String(year), systemImage: "calendar").font(.system(size: 12))
                     }
                     .menuStyle(.button)
-                    .buttonStyle(GhostButtonStyle())
+                    .buttonStyle(GlassButtonStyle())
                     .menuIndicator(.hidden)
                     .fixedSize()
                 }
@@ -42,12 +42,12 @@ struct StatsView: View {
 
                 GoalCard(year: year)
 
-                Card {
+                GlassCard {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Books per Month").font(.system(size: 13, weight: .semibold))
                         Chart(monthly(finished), id: \.month) { item in
                             BarMark(x: .value("Month", item.month, unit: .month), y: .value("Books", item.count), width: .ratio(0.45))
-                                .foregroundStyle(Theme.accent)
+                                .foregroundStyle(DS.accent)
                                 .cornerRadius(4)
                         }
                         .chartXAxis {
@@ -61,19 +61,19 @@ struct StatsView: View {
                 }
 
                 HStack(alignment: .top, spacing: 16) {
-                    Card {
+                    GlassCard {
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Ratings").font(.system(size: 13, weight: .semibold))
                             Chart(ratingBuckets(rated), id: \.rating) { item in
                                 BarMark(x: .value("Count", item.count), y: .value("Rating", item.label))
-                                    .foregroundStyle(Theme.accent.opacity(0.75))
+                                    .foregroundStyle(DS.accent.opacity(0.75))
                                     .cornerRadius(3)
                             }
                             .chartXAxis(.hidden)
                             .frame(height: 200)
                         }
                     }
-                    Card {
+                    GlassCard {
                         VStack(alignment: .leading, spacing: 10) {
                             Text("Highlights").font(.system(size: 13, weight: .semibold))
                             if let longest = finished.max(by: { $0.pagesValue < $1.pagesValue }), longest.pageCount != nil {
@@ -86,26 +86,26 @@ struct StatsView: View {
                                 highlight("Highest rated", top, detail: "\(top.ratingValue.formatted()) ★")
                             }
                             if finished.isEmpty {
-                                Text("Finish a book in \(String(year)) to see highlights.").foregroundStyle(Theme.muted)
+                                Text("Finish a book in \(String(year)) to see highlights.").foregroundStyle(DS.textSecondary)
                             }
                         }
                     }
                 }
 
-                Card {
+                GlassCard {
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Most-read Authors · all time").font(.system(size: 13, weight: .semibold))
                         let authors = topAuthors()
                         if authors.isEmpty {
-                            Text("Nothing yet.").foregroundStyle(Theme.muted)
+                            Text("Nothing yet.").foregroundStyle(DS.textSecondary)
                         }
                         ForEach(authors, id: \.name) { a in
                             HStack {
                                 Text(a.name)
                                 Spacer()
-                                Text("\(a.count) book\(a.count == 1 ? "" : "s")").foregroundStyle(Theme.muted).monospacedDigit()
+                                Text("\(a.count) book\(a.count == 1 ? "" : "s")").foregroundStyle(DS.textSecondary).monospacedDigit()
                             }
-                            Rectangle().fill(Theme.border).frame(height: 1)
+                            Rectangle().fill(DS.stroke).frame(height: 1)
                         }
                     }
                 }
@@ -119,11 +119,11 @@ struct StatsView: View {
         HStack(spacing: 10) {
             CoverView(book: book, size: "S").frame(width: 28)
             VStack(alignment: .leading) {
-                Text(label).font(.caption).foregroundStyle(Theme.muted)
+                Text(label).font(.caption).foregroundStyle(DS.textSecondary)
                 Text(book.title).lineLimit(1)
             }
             Spacer()
-            Text(detail).font(.callout).foregroundStyle(Theme.muted)
+            Text(detail).font(.callout).foregroundStyle(DS.textSecondary)
         }
     }
 
@@ -156,11 +156,11 @@ private struct StatTile: View {
     let symbol: String
 
     var body: some View {
-        Card {
+        GlassCard {
             VStack(alignment: .leading, spacing: 6) {
-                Image(systemName: symbol).font(.system(size: 12)).foregroundStyle(Theme.muted)
-                Text(value).font(Theme.serif(28, .medium)).monospacedDigit()
-                Text(label.uppercased()).font(.system(size: 9.5, weight: .semibold)).tracking(0.6).foregroundStyle(Theme.muted)
+                Image(systemName: symbol).font(.system(size: 12)).foregroundStyle(DS.textSecondary)
+                Text(value).font(DS.serif(28, .medium)).monospacedDigit()
+                Text(label.uppercased()).font(.system(size: 9.5, weight: .semibold)).tracking(0.6).foregroundStyle(DS.textSecondary)
             }
         }
     }

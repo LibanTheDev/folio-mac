@@ -29,14 +29,14 @@ final class AppState: ObservableObject {
     }
 
     func open(_ id: UUID) {
-        withAnimation(.snappy(duration: 0.25)) {
+        Motion.perform {
             selectedBook = id
             inspectorShown = true
         }
     }
 
     func toggleInspector() {
-        withAnimation(.snappy(duration: 0.25)) { inspectorShown.toggle() }
+        Motion.perform { inspectorShown.toggle() }
     }
 }
 
@@ -45,28 +45,35 @@ struct ContentView: View {
     @EnvironmentObject var app: AppState
 
     var body: some View {
-        HStack(spacing: 0) {
-            SidebarView()
-                .frame(width: 232)
-            Rectangle().fill(Theme.border).frame(width: 1)
-            VStack(spacing: 0) {
-                TopBar()
-                Rectangle().fill(Theme.border).frame(height: 1)
-                page
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            }
-            .background(Theme.canvas)
-            if app.inspectorShown, let id = app.selectedBook, library.book(id) != nil {
-                Rectangle().fill(Theme.border).frame(width: 1)
-                InspectorView(id: id)
-                    .frame(width: 330)
-                    .transition(.move(edge: .trailing).combined(with: .opacity))
+        ZStack {
+            VisualEffectView(material: .underWindowBackground, blending: .behindWindow)
+            AtmosphereBackground()
+            HStack(spacing: 0) {
+                SidebarView()
+                    .frame(width: 236)
+                    .glass(.panel, cornerRadius: DS.Radius.panel)
+                    .padding(8)
+                VStack(spacing: 0) {
+                    TopBar()
+                    page
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .id(app.page)
+                        .transition(.opacity)
+                }
+                if app.inspectorShown, let id = app.selectedBook, library.book(id) != nil {
+                    InspectorView(id: id)
+                        .frame(width: 340)
+                        .glass(.panel, cornerRadius: DS.Radius.panel)
+                        .padding(8)
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                }
             }
         }
-        .background(Theme.canvas)
-        .foregroundStyle(Theme.ink)
-        .tint(Theme.accent)
+        .background(WindowConfigurator())
+        .foregroundStyle(DS.textPrimary)
+        .tint(DS.accent)
         .ignoresSafeArea(.container, edges: .top)
+        .motion(Motion.standard, value: app.page)
         .environment(\.openBook) { app.open($0) }
         .onChange(of: app.search) { _, new in
             if !new.isEmpty, app.page == .home || app.page == .stats { app.show(.all) }
@@ -94,6 +101,18 @@ struct ContentView: View {
 
 // MARK: - Top bar
 
+/// Lets the user drag the window from empty titlebar space.
+struct WindowDragArea: NSViewRepresentable {
+    final class DragView: NSView {
+        override func mouseDown(with event: NSEvent) { window?.performDrag(with: event) }
+        override func mouseUp(with event: NSEvent) {
+            if event.clickCount == 2 { window?.performZoom(nil) }
+        }
+    }
+    func makeNSView(context: Context) -> NSView { DragView() }
+    func updateNSView(_ nsView: NSView, context: Context) {}
+}
+
 struct TopBar: View {
     @EnvironmentObject var app: AppState
     @EnvironmentObject var library: Library
@@ -102,48 +121,41 @@ struct TopBar: View {
 
     var body: some View {
         ZStack {
-            HStack(spacing: 4) {
+            WindowDragArea()
+            HStack(spacing: 2) {
                 ForEach(Page.allCases) { page in
                     Button(page.rawValue) { app.go(page) }
                         .buttonStyle(PillButtonStyle(selected: app.page == page))
                 }
             }
+            .padding(3)
+            .background(Capsule().fill(DS.fill))
+            .overlay(Capsule().strokeBorder(DS.stroke))
             HStack(spacing: 6) {
                 Spacer()
                 if searchOpen || !app.search.isEmpty {
-                    HStack(spacing: 6) {
-                        Image(systemName: "magnifyingglass").font(.system(size: 11)).foregroundStyle(Theme.muted)
-                        TextField(app.page == .discover ? "Search Open Library" : "Search your books", text: $app.search)
-                            .textFieldStyle(.plain)
-                            .font(.system(size: 12))
-                            .focused($searchFocused)
-                            .onExitCommand { app.search = ""; searchOpen = false }
-                        if !app.search.isEmpty {
-                            Button { app.search = "" } label: { Image(systemName: "xmark.circle.fill") }
-                                .buttonStyle(.plain)
-                                .foregroundStyle(Theme.faint)
-                        }
-                    }
-                    .padding(.horizontal, 9)
-                    .frame(width: 210, height: 26)
-                    .background(Theme.card, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
-                    .overlay(RoundedRectangle(cornerRadius: 7, style: .continuous).strokeBorder(Theme.border))
-                    .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .trailing)))
+                    GlassSearchField(prompt: app.page == .discover ? "Search Open Library" : "Search your books",
+                                     text: $app.search, focus: $searchFocused,
+                                     onEscape: { app.search = ""; searchOpen = false })
+                        .frame(width: 220)
+                        .transition(.opacity.combined(with: .scale(scale: 0.96, anchor: .trailing)))
                 } else {
                     Button { openSearch() } label: { Image(systemName: "magnifyingglass") }
                         .buttonStyle(IconButtonStyle())
                         .help("Search (⌘F)")
+                        .accessibilityLabel("Search")
                 }
                 if app.selectedBook != nil {
                     Button { app.toggleInspector() } label: { Image(systemName: "sidebar.right") }
                         .buttonStyle(IconButtonStyle(selected: app.inspectorShown))
                         .help("Toggle inspector (⌥⌘I)")
+                        .accessibilityLabel("Toggle inspector")
                 }
             }
         }
-        .padding(.horizontal, 16)
-        .frame(height: 52)
-        .animation(.snappy(duration: 0.2), value: searchOpen)
+        .padding(.horizontal, 14)
+        .frame(height: 54)
+        .motion(Motion.gentle, value: searchOpen)
         .onChange(of: app.searchFocusRequests) { openSearch() }
         .onChange(of: searchFocused) { _, focused in
             if !focused, app.search.isEmpty { searchOpen = false }
@@ -161,17 +173,23 @@ struct TopBar: View {
 struct SidebarView: View {
     @EnvironmentObject var library: Library
     @EnvironmentObject var app: AppState
-    @AppStorage("appearance") private var appearance = Appearance.light
+    @AppStorage("appearance") private var appearance = Appearance.system
     @State private var addingShelf = false
     @State private var newShelf = ""
     @FocusState private var shelfFieldFocused: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .firstTextBaseline) {
-                Text("folio")
-                    .font(Theme.serif(26, .regular))
-                    .foregroundStyle(Theme.ink)
+            HStack(alignment: .center, spacing: 8) {
+                Image(systemName: "book.pages")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(DS.onAccent)
+                    .frame(width: 24, height: 24)
+                    .background(RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(LinearGradient(colors: [DS.accentSecondary, DS.accent], startPoint: .top, endPoint: .bottom)))
+                Text("Folio")
+                    .font(DS.serif(19, .semibold))
+                    .foregroundStyle(DS.textPrimary)
                 Spacer()
                 Menu {
                     Button("Import Goodreads Library…") { library.importGoodreads() }
@@ -183,22 +201,23 @@ struct SidebarView: View {
                 } label: {
                     Image(systemName: "gearshape")
                         .font(.system(size: 13))
-                        .foregroundStyle(Theme.muted)
+                        .foregroundStyle(DS.textSecondary)
+                        .accessibilityLabel("Settings")
                 }
                 .menuStyle(.borderlessButton)
                 .menuIndicator(.hidden)
                 .fixedSize()
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 46)
+            .padding(.horizontal, 16)
+            .padding(.top, 44)
 
             Button { library.presentAddBook() } label: {
                 Label("Add a Book", systemImage: "plus")
             }
             .buttonStyle(PrimaryButtonStyle())
-            .padding(.horizontal, 16)
-            .padding(.top, 16)
-            .padding(.bottom, 14)
+            .padding(.horizontal, 12)
+            .padding(.top, 14)
+            .padding(.bottom, 8)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 1) {
@@ -226,7 +245,7 @@ struct SidebarView: View {
                     }
                     if addingShelf {
                         HStack(spacing: 10) {
-                            Image(systemName: "tag").font(.system(size: 12)).foregroundStyle(Theme.muted).frame(width: 18)
+                            Image(systemName: "tag").font(.system(size: 12)).foregroundStyle(DS.textSecondary).frame(width: 18)
                             TextField("Shelf name", text: $newShelf)
                                 .textFieldStyle(.plain)
                                 .font(.system(size: 13))
@@ -239,20 +258,19 @@ struct SidebarView: View {
                                 }
                                 .onExitCommand { newShelf = ""; addingShelf = false }
                         }
-                        .padding(.horizontal, 10).padding(.vertical, 6)
-                        .background(Theme.card, in: RoundedRectangle(cornerRadius: 6))
+                        .padding(.horizontal, 9).padding(.vertical, 6)
+                        .glass(.control, cornerRadius: DS.Radius.small + 1)
                         .onAppear { shelfFieldFocused = true }
                     } else {
                         SidebarRow(title: "Add a Shelf", icon: "plus", selected: false, muted: true) { addingShelf = true }
                     }
                 }
-                .padding(.horizontal, 10)
-                .padding(.bottom, 20)
+                .padding(.horizontal, 8)
+                .padding(.bottom, 16)
             }
             .scrollIndicators(.never)
         }
         .frame(maxHeight: .infinity, alignment: .top)
-        .background(Theme.sidebar)
     }
 
     private func row(_ title: String, _ icon: String, _ scope: Scope, count: Int) -> SidebarRow {
@@ -262,51 +280,6 @@ struct SidebarView: View {
     }
 
     private func sectionTitle(_ t: String) -> some View {
-        Text(t)
-            .font(.system(size: 11.5, weight: .semibold))
-            .foregroundStyle(Theme.ink.opacity(0.75))
-            .padding(.horizontal, 10)
-            .padding(.top, 18)
-            .padding(.bottom, 6)
-    }
-}
-
-struct SidebarRow: View {
-    let title: String
-    let icon: String
-    var count: Int?
-    let selected: Bool
-    var muted = false
-    let action: () -> Void
-    @State private var hovering = false
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                Image(systemName: icon)
-                    .font(.system(size: 12.5))
-                    .frame(width: 18)
-                    .foregroundStyle(selected ? Theme.ink : Theme.muted)
-                Text(title)
-                    .font(.system(size: 13, weight: selected ? .medium : .regular))
-                    .foregroundStyle(muted ? Theme.muted : Theme.ink)
-                    .lineLimit(1)
-                Spacer(minLength: 4)
-                if let count, count > 0 {
-                    Text("\(count)")
-                        .font(.system(size: 11).monospacedDigit())
-                        .foregroundStyle(Theme.muted)
-                }
-            }
-            .padding(.horizontal, 10)
-            .padding(.vertical, 6.5)
-            .background(
-                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                    .fill(selected ? Theme.accentSoft : hovering ? Theme.accentSoft.opacity(0.45) : .clear)
-            )
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .onHover { hovering = $0 }
+        SidebarSectionTitle(title: t)
     }
 }
