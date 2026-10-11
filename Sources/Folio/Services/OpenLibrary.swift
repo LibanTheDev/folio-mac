@@ -71,6 +71,44 @@ enum OpenLibrary {
         return try? await get(c.url!, as: SearchResponse.self).docs.first
     }
 
+    /// Title + author search used to verify AI suggestions.
+    static func searchTitleAuthor(title: String, author: String, limit: Int = 5) async throws -> [OLDoc] {
+        // Long subtitles often differ between editions; search on the main title.
+        let main = title.split(whereSeparator: { $0 == ":" || $0 == "(" }).first.map {
+            $0.trimmingCharacters(in: .whitespaces)
+        } ?? title
+        var c = URLComponents(string: "https://openlibrary.org/search.json")!
+        c.queryItems = [.init(name: "title", value: main), .init(name: "author", value: author),
+                        .init(name: "limit", value: "\(limit)"), .init(name: "fields", value: fields)]
+        let docs = try await get(c.url!, as: SearchResponse.self).docs
+        if !docs.isEmpty { return docs }
+        // Fall back to a general query (handles subtitle and author-format differences).
+        return try await search("\(main) \(author)", limit: limit)
+    }
+
+    private static let requestWords: Set<String> = [
+        "book", "books", "best", "good", "great", "like", "similar", "recommend", "recommendations", "read", "reading",
+        "focused", "focus", "overlooked", "find", "people", "who", "built", "novel", "novels",
+    ]
+
+    /// Keyword search for a natural-language request (used when AI is off): drops filler words, then
+    /// widens to subject searches if the plain query is thin.
+    static func searchNaturalLanguage(_ request: String, limit: Int = 30) async throws -> [OLDoc] {
+        let words = KeywordSearch.tokens(request).filter { !requestWords.contains($0) }
+        guard !words.isEmpty else { return try await search(request, limit: limit) }
+        var results = try await search(words.joined(separator: " "), limit: limit)
+        if results.count < 8 {
+            var seen = Set(results.map(\.key))
+            let phrases = words.count >= 2 ? (0..<(words.count - 1)).map { "\(words[$0]) \(words[$0 + 1])" } : words
+            for phrase in phrases.prefix(4) {
+                for doc in (try? await subject(phrase)) ?? [] where seen.insert(doc.key).inserted {
+                    results.append(doc)
+                }
+            }
+        }
+        return Array(results.prefix(limit))
+    }
+
     static func trending() async throws -> [OLDoc] {
         try await get(URL(string: "https://openlibrary.org/trending/weekly.json?limit=40")!, as: TrendingResponse.self).works
     }

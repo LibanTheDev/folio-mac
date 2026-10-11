@@ -44,7 +44,7 @@ Status legend: ✅ done · 🚧 in progress · ⏳ planned · ⛔ blocked (needs
 | 4 | Live home dashboard | ✅ | see log |
 | 5 | Reading sessions and analytics | ✅ | see log |
 | 6 | Personal knowledge vault and search | ✅ | see log |
-| 7 | AI-powered discovery | ⏳ | |
+| 7 | AI-powered discovery | ✅ | see log |
 | 8 | Ask Folio and knowledge graph | ⏳ | |
 | 9 | Command palette, notifications, backups/sync, export | ⏳ | |
 | 10 | Final QA | ⏳ | |
@@ -100,6 +100,17 @@ Updated at each milestone below.
 - **Semantic retrieval, fully on-device:** Apple `NaturalLanguage` sentence embeddings, cached on disk in Caches (regenerable, never exported). The cutoff is relative (mean + 0.8 SD with a floor), because absolute similarity from this model varies with query length (measured before tuning).
 - **Cross-book connections:** manual links between notes (stored one-way, displayed with backlinks), a link picker, unlinking, and cleanup when notes or books are deleted. **Suggested connections** come from local embeddings (opt-in per suggestion, nothing uploaded).
 - Tests: keyword search and snippets, stop words, links/backlinks/cleanup, timestamp-on-change, Markdown stripping, semantic retrieval with no shared keywords, cutoff selection.
+
+### Milestone 7: AI-powered discovery
+- **Provider-agnostic AI layer** (`Services/AI`): an `AIProvider` protocol with two implementations.
+  - **Anthropic:** raw HTTPS (no Swift SDK exists), default `claude-opus-5-5`, structured JSON output via `output_config.format`, effort `medium`, server-side refusal fallbacks (`fallbacks: "default"`), and `refusal` / `max_tokens` stop reasons handled before reading content.
+  - **OpenAI-compatible:** for local Ollama or LM Studio (fully offline) or hosted endpoints.
+- **Privacy:** AI is **off by default**. Keys are stored in the **macOS Keychain**. Separate consent switches cover library metadata and notes, and the exact disclosure ("Sends … to …") is shown next to every AI action. Notes are only shared as the few passages relevant to the query (found locally).
+- **Discover → For You:** describe what you want, or use the four example prompts. The model proposes; **every suggestion is verified against Open Library** (title, ignoring subtitles and articles, plus author surname). Unverifiable suggestions are hidden and counted, with an opt-in "treat with caution" list. Books already owned or dismissed are skipped. Each card shows verified title, author, year, cover, the Open Library description, the AI reason (labelled "AI-generated"), related books from your library (matched to real entries), and Want to Read / Details / Not for me (remembered and sent as "don't recommend").
+- **AI-off fallback:** a natural-language keyword search on Open Library (filler words removed, widened to subject searches when results are thin).
+- **Settings window** (⌘,): General (appearance, show library file, backups folder) and AI (provider, model, key, consent, interests, connection test).
+- Tests: request shape, stop-reason parsing, JSON extraction, consent-gated prompts, title/author matching, verification dropping invented, owned and dismissed books, invalid model output, and a Keychain round trip. A live Open Library verification test (`FOLIO_NETWORK_TESTS=1`) passes: 4 real books verified, 1 invented title rejected. It also caught a subtitle false negative, which is now fixed.
+- ⚠️ **Not verified end-to-end against a real model:** no API key and no local model server were available in the build environment. The provider code is unit-tested against the documented response shapes. Add a key in Settings → AI and use Test Connection.
 
 ## 6. Sync evaluation
 

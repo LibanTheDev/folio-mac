@@ -73,6 +73,12 @@ struct FolioApp: App {
                 }
             }
         }
+
+        Settings {
+            SettingsView()
+                .environmentObject(library)
+                .preferredColorScheme(appearance.colorScheme)
+        }
     }
 }
 

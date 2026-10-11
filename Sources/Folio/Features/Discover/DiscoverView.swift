@@ -1,6 +1,32 @@
 import SwiftUI
 
+enum DiscoverMode: String, CaseIterable, Identifiable {
+    case recommend = "For You", browse = "Browse"
+    var id: String { rawValue }
+}
+
 struct DiscoverView: View {
+    @AppStorage("discover.mode") private var mode = DiscoverMode.recommend
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            PageHeader(title: "Discover", caption: mode == .recommend ? "AI recommendations, verified" : "Open Library") {
+                GlassSegmented(selection: $mode, options: DiscoverMode.allCases) { m in
+                    Label(m.rawValue, systemImage: m == .recommend ? "sparkles" : "books.vertical")
+                }
+            }
+            .padding(.horizontal, DS.Space.page)
+            .padding(.top, 10)
+            .padding(.bottom, 6)
+            switch mode {
+            case .recommend: RecommendView()
+            case .browse: BrowseView()
+            }
+        }
+    }
+}
+
+struct BrowseView: View {
     @EnvironmentObject var library: Library
     @EnvironmentObject var app: AppState
     @State private var results: [OLDoc] = []
@@ -16,7 +42,7 @@ struct DiscoverView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                PageHeader(title: "Discover", caption: heading)
+                SectionHeader(title: heading)
                 FlowLayout(spacing: 6) {
                     Button("Trending") { activeGenre = nil; app.search = ""; Task { await loadTrending() } }
                         .buttonStyle(PillButtonStyle(selected: activeGenre == nil && app.search.isEmpty))
@@ -47,7 +73,7 @@ struct DiscoverView: View {
                 }
             }
             .padding(.horizontal, 28)
-            .padding(.vertical, 22)
+            .padding(.vertical, 12)
         }
         .task { if results.isEmpty { await loadTrending() } }
         .task(id: app.search) {
