@@ -195,7 +195,7 @@ import Testing
         let now = cal.startOfDay(for: Date())
         var b = Book(title: "X", authors: [], pageCount: 300)
         b.status = .reading
-        b.dateStarted = day(-10, from: now)
+        b.dateStarted = day(-9, from: now)
         b.progressLog = (0..<10).map { i in ProgressEntry(date: day(-9 + i, from: now), page: (i + 1) * 20) }
         b.currentPage = 200
         let f = ReadingForecast.make(book: b, sessions: [], now: now, calendar: cal)

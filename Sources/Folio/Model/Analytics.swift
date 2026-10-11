@@ -15,17 +15,24 @@ enum Activity {
             let log = b.progressLog.sorted { $0.date < $1.date }
             for (i, entry) in log.enumerated() {
                 let day = cal.startOfDay(for: entry.date)
-                let previous: Int?
-                if i > 0 {
-                    previous = log[i - 1].page
-                } else if let started = b.dateStarted, entry.date.timeIntervalSince(started) < 7 * 86_400 {
-                    // First update shortly after starting: count from page 0.
-                    previous = 0
-                } else {
-                    previous = nil  // unknown starting point; don't guess
-                }
                 days[day, default: Day()].touched = true
-                if let previous { days[day, default: Day()].pages += max(0, entry.page - previous) }
+                if i > 0 {
+                    days[day, default: Day()].pages += max(0, entry.page - log[i - 1].page)
+                } else if let started = b.dateStarted, entry.date >= started,
+                          entry.date.timeIntervalSince(started) < 14 * 86_400 {
+                    // First update after starting: those pages were read somewhere between the start date
+                    // and this update, so spread them evenly instead of crediting a single day.
+                    // Spread days get pages but aren't marked as recorded reading days.
+                    let startDay = cal.startOfDay(for: started)
+                    let span = (cal.dateComponents([.day], from: startDay, to: day).day ?? 0) + 1
+                    let per = entry.page / span
+                    for offset in 0..<span {
+                        let d = cal.date(byAdding: .day, value: offset, to: startDay)!
+                        let extra = offset == span - 1 ? entry.page - per * span : 0
+                        days[d, default: Day()].pages += per + extra
+                    }
+                }
+                // Otherwise the starting point is unknown, so pages aren't guessed.
             }
         }
         for s in sessions {
@@ -125,5 +132,49 @@ struct ReadingForecast: Equatable {
             }
         }
         return line
+    }
+}
+
+/// Yearly reading statistics, computed only from recorded data.
+struct YearStats: Equatable {
+    var year: Int
+    var booksCompleted: Int
+    /// Pages from books finished this year (whole book) plus pages logged this year on unfinished books.
+    var pagesRead: Int
+    /// Time from recorded reading sessions only.
+    var secondsRead: TimeInterval
+    var sessionCount: Int
+    var readingDays: Int
+    var abandoned: Int
+
+    static func make(year: Int, books: [Book], sessions: [ReadingSession], calendar cal: Calendar = .current) -> YearStats {
+        func inYear(_ d: Date?) -> Bool { d.map { cal.component(.year, from: $0) == year } ?? false }
+        let finished = books.filter { $0.status == .read && inYear($0.dateFinished) }
+        let finishedIDs = Set(finished.map(\.id))
+        let yearSessions = sessions.filter { inYear($0.start) }
+
+        // Logged pages this year, per book.
+        var loggedByBook: [UUID: Int] = [:]
+        for b in books {
+            let days = Activity.daily(books: [b], sessions: yearSessions.filter { $0.bookID == b.id }, calendar: cal)
+            loggedByBook[b.id] = days.filter { inYear($0.key) }.reduce(0) { $0 + $1.value.pages }
+        }
+        let finishedPages = finished.reduce(0) { $0 + max($1.pageCount ?? 0, loggedByBook[$1.id] ?? 0) }
+        let otherPages = loggedByBook.filter { !finishedIDs.contains($0.key) }.reduce(0) { $0 + $1.value }
+
+        let activity = Activity.daily(books: books, sessions: sessions, calendar: cal)
+        let abandoned = books.filter { b in b.status == .dnf && (inYear(b.updatedAt) || inYear(b.dateStarted)) }.count
+        return YearStats(year: year, booksCompleted: finished.count, pagesRead: finishedPages + otherPages,
+                         secondsRead: yearSessions.reduce(0) { $0 + $1.duration }, sessionCount: yearSessions.count,
+                         readingDays: activity.filter { inYear($0.key) && $0.value.touched }.count, abandoned: abandoned)
+    }
+}
+
+extension TimeInterval {
+    /// "3h 20m", "45m".
+    var readingDuration: String {
+        let minutes = Int((self / 60).rounded())
+        if minutes < 60 { return "\(max(minutes, self > 0 ? 1 : 0))m" }
+        return "\(minutes / 60)h \(minutes % 60)m"
     }
 }

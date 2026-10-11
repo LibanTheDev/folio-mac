@@ -57,7 +57,7 @@ struct ProgressPanel: View {
                     .onSubmit(logPage)
                 Button("Update", action: logPage)
                     .buttonStyle(GlassButtonStyle())
-                    .disabled(Int(pageInput) == nil)
+                    .disabled(pageInput.intValue == nil)
                 Spacer()
                 Button("Mark Finished") { library.setStatus(book.id, .read) }
                     .buttonStyle(PrimaryButtonStyle(fullWidth: false))
@@ -68,7 +68,7 @@ struct ProgressPanel: View {
     }
 
     private func logPage() {
-        guard let p = Int(pageInput) else { return }
+        guard let p = pageInput.intValue else { return }
         library.logProgress(book.id, page: p)
         pageInput = ""
     }
@@ -238,7 +238,7 @@ struct NoteComposer: View {
     private func add(_ k: BookNote.Kind) {
         let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !t.isEmpty else { return }
-        book.notes.append(BookNote(kind: k, text: t, page: Int(page), chapter: chapter.nilIfEmpty))
+        book.notes.append(BookNote(kind: k, text: t, page: page.intValue, chapter: chapter.nilIfEmpty))
         text = ""
         page = ""
     }

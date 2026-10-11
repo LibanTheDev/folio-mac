@@ -120,6 +120,9 @@ struct TopBar: View {
                         .help("Search (⌘F)")
                         .accessibilityLabel("Search")
                 }
+                if let session = library.activeSession {
+                    SessionPill(session: session)
+                }
                 if app.selectedBook != nil {
                     Button { app.toggleInspector() } label: { Image(systemName: "sidebar.right") }
                         .buttonStyle(IconButtonStyle(selected: app.inspectorShown))

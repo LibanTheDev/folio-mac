@@ -127,4 +127,9 @@ struct NoteRef: Hashable, Identifiable {
 
 extension String {
     var nilIfEmpty: String? { isEmpty ? nil : self }
+
+    /// Lenient integer parsing for text inputs: ignores surrounding whitespace, newlines and grouping commas.
+    var intValue: Int? {
+        Int(trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: ",", with: ""))
+    }
 }

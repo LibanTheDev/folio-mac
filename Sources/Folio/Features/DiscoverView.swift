@@ -250,7 +250,7 @@ struct AddBookSheet: View {
         let b = Book(title: title.trimmingCharacters(in: .whitespaces),
                      authors: author.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) },
                      isbn: isbn.filter { $0.isNumber || $0 == "X" }.nilIfEmpty,
-                     pageCount: Int(pages))
+                     pageCount: pages.intValue)
         let id = library.add(b, status: status)
         dismiss()
         Task { await library.enrich(id) }

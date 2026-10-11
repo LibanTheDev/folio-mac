@@ -41,7 +41,7 @@ Status legend: ✅ done · 🚧 in progress · ⏳ planned · ⛔ blocked (needs
 | 1 | Audit and roadmap | ✅ | (this file) |
 | 2 | Frosted macOS design system | ✅ | see log |
 | 3 | Library gallery, smart shelves, book detail, rereads | ✅ | see log |
-| 4 | Live home dashboard | ⏳ | |
+| 4 | Live home dashboard | ✅ | see log |
 | 5 | Reading sessions and analytics | ⏳ | |
 | 6 | Personal knowledge vault and search | ⏳ | |
 | 7 | AI-powered discovery | ⏳ | |
@@ -75,6 +75,16 @@ Updated at each milestone below.
 - **Book detail page:** hero with cover, genres, authors (click to filter), status, rating, sessions and re-read actions. Progress with finish forecast. About. Highlights & Notes grouped by type. Mental Models. Review. Editable details (ISBN, edition, format, publisher). Reading history. Tags and collections. Related books (library ranking plus more by the author from Open Library).
 - Goodreads re-import now merges: it refreshes Goodreads-owned fields and keeps Folio-only data.
 - Tests: 24 (persistence and migration, rereads, merge, queue, deletion cleanup, tags, smart-shelf rules, filters, related books, forecast, streaks, 5,000-book performance).
+
+### Milestone 4: Live home dashboard
+- Time-aware greeting ("Good afternoon.") with "A little reading every day adds up." (refreshes every minute).
+- Stat cards only show what the data supports: books completed and pages read this year always; streak only once activity exists; reading time only once sessions exist. Pages read = whole pages of books finished this year plus pages logged this year on unfinished books, labelled as such.
+- Live session banner and top-bar session pill, with pause/resume and finish (records end page) or discard.
+- Currently Reading cards: progress, %, pages left, forecast finish date (marked rough when data is thin; "needs more data" when there is none), quick page update and one-click session start.
+- Up Next queue with persistent drag-to-reorder (`queueRank`), plus Start Reading and Move to Front.
+- Recent Knowledge cards from the latest saved notes. A width-adaptive GitHub-style activity heatmap. Recently Finished row.
+- Imported history never creates activity. When a first progress update comes days after the start date, its pages are spread across those days without marking them as reading days.
+- Tests: year stats from imports vs recorded data, session pause and resume time accounting, accidental-tap rejection, first-update spreading.
 
 ## 6. Sync evaluation
 
