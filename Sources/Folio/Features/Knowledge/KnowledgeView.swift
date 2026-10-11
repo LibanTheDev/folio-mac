@@ -29,11 +29,31 @@ struct KnowledgeView: View {
         }
     }
 
+    @AppStorage("knowledge.mode") private var mode = "notes"
+
     var body: some View {
-        let notes = notes
-        HStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(spacing: 0) {
+            HStack {
                 PageHeader(title: "Knowledge", caption: "\(library.allNotes.count) notes across \(library.books.filter { !$0.notes.isEmpty }.count) books")
+                GlassSegmented(selection: $mode, options: ["notes", "map"]) { m in
+                    Label(m == "notes" ? "Notes" : "Map", systemImage: m == "notes" ? "list.bullet.rectangle" : "point.3.connected.trianglepath.dotted")
+                }
+            }
+            .padding(.horizontal, DS.Space.page)
+            .padding(.top, 10)
+            .padding(.bottom, 10)
+            if mode == "map" {
+                KnowledgeMapView()
+            } else {
+                notesBody
+            }
+        }
+    }
+
+    private var notesBody: some View {
+        let notes = notes
+        return HStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 12) {
                 filters
                 if notes.isEmpty {
                     EmptyStateView(icon: "brain.head.profile",
@@ -58,7 +78,6 @@ struct KnowledgeView: View {
             }
             .padding(.leading, DS.Space.page)
             .padding(.trailing, 16)
-            .padding(.top, 10)
             .frame(width: 400)
 
             Group {
@@ -74,7 +93,6 @@ struct KnowledgeView: View {
             .glass(.card, cornerRadius: DS.Radius.panel)
             .padding(.trailing, 16)
             .padding(.bottom, 16)
-            .padding(.top, 6)
         }
         .onAppear(perform: applyFocus)
         .onChange(of: app.focusedNote) { applyFocus() }

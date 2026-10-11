@@ -42,6 +42,7 @@ enum KeywordSearch {
         "they", "this", "to", "up", "was", "we", "what", "when", "which", "who", "why", "with", "you", "your", "many",
         "much", "some", "very", "about", "into", "out", "just", "can", "will", "would", "should", "could", "did", "does",
         "years", "year", "time", "things", "thing", "get", "getting", "got", "make", "made", "more", "most", "all",
+        "learn", "learned", "learnt", "learning", "know", "knew", "think", "said", "say", "says", "tell", "notes", "note",
     ]
 
     static func tokens(_ s: String) -> [String] {
@@ -55,13 +56,13 @@ enum KeywordSearch {
     }
 
     /// Fraction of query tokens present (prefix match), weighted to favour phrase matches.
-    static func score(_ text: String, query: String, tokens q: [String]) -> Double {
+    static func score(_ text: String, query: String, tokens q: [String], minCoverage: Double = 0.5) -> Double {
         guard !q.isEmpty, !text.isEmpty else { return 0 }
         let lowered = text.lowercased().folding(options: .diacriticInsensitive, locale: .current)
         let words = Set(tokens(lowered))
         let hits = q.filter { t in lowered.contains(t) && (words.contains(t) || words.contains { $0.hasPrefix(t) }) }.count
         // Longer queries need at least half their meaningful words present.
-        guard hits > 0, q.count <= 2 || Double(hits) / Double(q.count) >= 0.5 else { return 0 }
+        guard hits > 0, q.count <= 2 || Double(hits) / Double(q.count) >= minCoverage else { return 0 }
         var s = Double(hits) / Double(q.count)
         if lowered.contains(query.lowercased()) { s += 0.5 }
         return s
@@ -79,28 +80,30 @@ enum KeywordSearch {
         return (start > flat.startIndex ? "…" : "") + flat[start..<end].trimmingCharacters(in: .whitespaces) + (end < flat.endIndex ? "…" : "")
     }
 
-    static func search(_ query: String, books: [Book], limit: Int = 60) -> [SearchHit] {
+    static func search(_ query: String, books: [Book], limit: Int = 60, minCoverage: Double = 0.5) -> [SearchHit] {
         let q = tokens(query)
         guard !q.isEmpty else { return [] }
         var hits: [SearchHit] = []
         for b in books {
             var best: (Double, SearchHit.Field, String)?
-            func consider(_ text: String, _ field: SearchHit.Field, weight: Double) {
-                let s = score(text, query: query, tokens: q) * weight
+            func consider2(_ text: String, _ field: SearchHit.Field, weight: Double) {
+                let s = score(text, query: query, tokens: q, minCoverage: minCoverage) * weight
                 if s > 0, s > (best?.0 ?? 0) { best = (s, field, text) }
             }
-            consider(b.title, .title, weight: 3)
-            consider(b.authors.joined(separator: ", "), .author, weight: 2.5)
-            consider(b.tags.joined(separator: " "), .tag, weight: 2)
-            consider(b.synopsis ?? "", .synopsis, weight: 0.8)
-            consider(b.review, .review, weight: 1.2)
+            consider2(b.title, .title, weight: 3)
+            consider2(b.authors.joined(separator: ", "), .author, weight: 2.5)
+            consider2(b.tags.joined(separator: " "), .tag, weight: 2)
+            consider2(b.synopsis ?? "", .synopsis, weight: 0.8)
+            consider2(b.review, .review, weight: 1.2)
             if let (s, field, text) = best {
                 let snippet = field == .title || field == .author ? b.authorLine : snippet(text, tokens: q)
                 hits.append(SearchHit(source: .book(b.id), title: b.title, subtitle: b.authorLine, snippet: snippet, field: field, score: s))
             }
             for n in b.notes {
-                let text = n.plainText + " " + n.tags.joined(separator: " ") + " " + (n.chapter ?? "")
-                let s = score(text, query: query, tokens: q) * 1.6
+                // The note's own book and author are part of its context ("my notes on Atomic Habits").
+                let parts: [String] = [n.plainText, n.tags.joined(separator: " "), n.chapter ?? "", b.title, b.authorLine]
+                let text = parts.joined(separator: " ")
+                let s = score(text, query: query, tokens: q, minCoverage: minCoverage) * 1.6
                 if s > 0 {
                     hits.append(SearchHit(source: .note(noteID: n.id, bookID: b.id), title: b.title,
                                           subtitle: [n.kind.title, n.locationLabel].compactMap { $0 }.joined(separator: " · "),

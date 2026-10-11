@@ -45,7 +45,7 @@ Status legend: ✅ done · 🚧 in progress · ⏳ planned · ⛔ blocked (needs
 | 5 | Reading sessions and analytics | ✅ | see log |
 | 6 | Personal knowledge vault and search | ✅ | see log |
 | 7 | AI-powered discovery | ✅ | see log |
-| 8 | Ask Folio and knowledge graph | ⏳ | |
+| 8 | Ask Folio and knowledge graph | ✅ | see log |
 | 9 | Command palette, notifications, backups/sync, export | ⏳ | |
 | 10 | Final QA | ⏳ | |
 
@@ -111,6 +111,17 @@ Updated at each milestone below.
 - **Settings window** (⌘,): General (appearance, show library file, backups folder) and AI (provider, model, key, consent, interests, connection test).
 - Tests: request shape, stop-reason parsing, JSON extraction, consent-gated prompts, title/author matching, verification dropping invented, owned and dismissed books, invalid model output, and a Keychain round trip. A live Open Library verification test (`FOLIO_NETWORK_TESTS=1`) passes: 4 real books verified, 1 invented title rejected. It also caught a subtitle false negative, which is now fixed.
 - ⚠️ **Not verified end-to-end against a real model:** no API key and no local model server were available in the build environment. The provider code is unit-tested against the documented response shapes. Add a key in Settings → AI and use Test Connection.
+
+### Milestone 8: Reading intelligence
+- **Ask Folio** (top nav and sidebar). Six modes: Ask, Recurring Themes, Disagreements, Compare Authors, Mental Models and Topic Summary.
+- **Retrieval runs on this Mac:** hybrid keyword and on-device semantic search with looser coverage for questions, plus notes from books or authors named in the question. Each source is numbered: S# for the reader's notes, M# for book information.
+- **Grounded answers:** the model must answer in three clearly labelled sections: *From your notes* (each paragraph must cite an S-source), *From book information* (M-sources), and *General knowledge* (uncited, visually distinct, never attributed to the reader).
+- **Validation before display:** citations that don't match a sent source are removed and flagged. Note-based paragraphs without a valid note citation are dimmed and marked unverified. Any quoted phrase must appear verbatim in a source, otherwise it is flagged. If no note-based claim survives, the answer is marked "insufficient evidence".
+- Citation chips open a popover with the exact source text and a link to the note or book. Every source sent can be listed.
+- **Consent:** needs AI on plus "notes" sharing, and only relevant passages are sent. Without consent (or offline), Ask Folio shows **"What your notes say"**: the retrieved passages grouped by book, computed locally.
+- **Intellectual map** (Knowledge → Map): books, authors, concepts (book tags, note tags, genres; only concepts linking two or more items), notes and mental models. Note links are edges, and **every edge records its reason** ("book tagged #sci-fi", "written by…", "connected notes"). Deterministic force layout, pan and pinch-zoom, hover and select highlighting of the neighbourhood, type filters, focus on a concept or author (2-hop subgraph), and an inspector listing connections with reasons and links to the book or note.
+- Tests: citation and quote validation (valid, fabricated, missing), section ordering, the prompt with and without sources, retrieval by named author and by book title and tags, graph construction (traceable edges, singleton concepts dropped), focus neighbourhood, and deterministic, normalized layout.
+- ⚠️ As with milestone 7, synthesized answers were not exercised against a live model (no key or local server here). The local evidence mode and all validation logic were verified.
 
 ## 6. Sync evaluation
 

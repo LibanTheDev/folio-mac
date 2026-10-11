@@ -72,6 +72,7 @@ struct ContentView: View {
     @ViewBuilder private var pageBody: some View {
         switch app.page {
         case .knowledge: KnowledgeView()
+        case .ask: AskFolioView()
         case .home: HomeView()
         case .books: LibraryView()
         case .discover: DiscoverView()

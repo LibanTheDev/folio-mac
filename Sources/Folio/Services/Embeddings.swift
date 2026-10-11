@@ -113,8 +113,8 @@ final class EmbeddingIndex: ObservableObject {
     }
 
     /// Hybrid search: keyword hits, plus notes that match by meaning but share no keywords.
-    func hybridSearch(_ query: String, books: [Book], limit: Int = 60) -> [SearchHit] {
-        var hits = KeywordSearch.search(query, books: books, limit: limit)
+    func hybridSearch(_ query: String, books: [Book], limit: Int = 60, minCoverage: Double = 0.5) -> [SearchHit] {
+        var hits = KeywordSearch.search(query, books: books, limit: limit, minCoverage: minCoverage)
         let seen = Set(hits.map(\.id))
         for (ref, s) in semanticNotes(query, books: books) {
             let id = "n-\(ref.note.id.uuidString)"

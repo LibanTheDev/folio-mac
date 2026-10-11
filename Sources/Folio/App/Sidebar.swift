@@ -28,6 +28,7 @@ struct SidebarView: View {
                     SidebarRow(title: "Home", icon: "house", selected: app.page == .home && app.detailBook == nil) { app.go(.home) }
                     SidebarRow(title: "Knowledge", icon: "brain.head.profile", count: library.allNotes.count,
                                selected: app.page == .knowledge && app.detailBook == nil) { app.go(.knowledge) }
+                    SidebarRow(title: "Ask Folio", icon: "text.bubble", selected: app.page == .ask && app.detailBook == nil) { app.go(.ask) }
                     SidebarRow(title: "Discover", icon: "safari", selected: app.page == .discover && app.detailBook == nil) { app.go(.discover) }
                     SidebarRow(title: "Insights", icon: "chart.xyaxis.line", selected: app.page == .stats && app.detailBook == nil) { app.go(.stats) }
 

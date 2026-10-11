@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum Page: String, CaseIterable, Identifiable {
-    case home = "Home", books = "My Books", knowledge = "Knowledge", discover = "Discover", stats = "Insights"
+    case home = "Home", books = "My Books", knowledge = "Knowledge", ask = "Ask Folio", discover = "Discover", stats = "Insights"
     var id: String { rawValue }
 }
 
@@ -58,6 +58,7 @@ final class AppState: ObservableObject {
 
     /// Opens a note in the Knowledge vault.
     func openNote(_ id: UUID) {
+        UserDefaults.standard.set("notes", forKey: "knowledge.mode")
         search = ""
         focusedNote = id
         page = .knowledge
