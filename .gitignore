@@ -1,0 +1,28 @@
+# Build artifacts
+.build/
+.swiftpm/
+*.app/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# Secrets and credentials
+.env
+.env.*
+*.pem
+*.p12
+*.key
+*.mobileprovision
+secrets.json
+credentials*
+
+# Local user data (Folio stores user data in ~/Library/Application Support/Folio, never in the repo)
+library.json
+*.sqlite
+*.sqlite-*
+demo-data/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
