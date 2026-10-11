@@ -27,7 +27,7 @@ struct SidebarView: View {
                 VStack(alignment: .leading, spacing: 1) {
                     SidebarRow(title: "Home", icon: "house", selected: app.page == .home && app.detailBook == nil) { app.go(.home) }
                     SidebarRow(title: "Discover", icon: "safari", selected: app.page == .discover && app.detailBook == nil) { app.go(.discover) }
-                    SidebarRow(title: "Reading Challenge", icon: "target", selected: app.page == .stats && app.detailBook == nil) { app.go(.stats) }
+                    SidebarRow(title: "Insights", icon: "chart.xyaxis.line", selected: app.page == .stats && app.detailBook == nil) { app.go(.stats) }
 
                     SidebarSectionTitle(title: "Library")
                     scopeRow("All Books", "books.vertical", .all, count: library.books.count)

@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum Page: String, CaseIterable, Identifiable {
-    case home = "Home", books = "My Books", discover = "Discover", stats = "Stats"
+    case home = "Home", books = "My Books", discover = "Discover", stats = "Insights"
     var id: String { rawValue }
 }
 

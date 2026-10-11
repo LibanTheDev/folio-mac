@@ -42,7 +42,7 @@ Status legend: ✅ done · 🚧 in progress · ⏳ planned · ⛔ blocked (needs
 | 2 | Frosted macOS design system | ✅ | see log |
 | 3 | Library gallery, smart shelves, book detail, rereads | ✅ | see log |
 | 4 | Live home dashboard | ✅ | see log |
-| 5 | Reading sessions and analytics | ⏳ | |
+| 5 | Reading sessions and analytics | ✅ | see log |
 | 6 | Personal knowledge vault and search | ⏳ | |
 | 7 | AI-powered discovery | ⏳ | |
 | 8 | Ask Folio and knowledge graph | ⏳ | |
@@ -85,6 +85,13 @@ Updated at each milestone below.
 - Recent Knowledge cards from the latest saved notes. A width-adaptive GitHub-style activity heatmap. Recently Finished row.
 - Imported history never creates activity. When a first progress update comes days after the start date, its pages are spread across those days without marking them as reading days.
 - Tests: year stats from imports vs recorded data, session pause and resume time accounting, accidental-tap rejection, first-update spreading.
+
+### Milestone 5: Reading analytics
+- Reading sessions: start, pause, resume and finish (live timer; paused time excluded; sub-10-second empty sessions ignored), plus manual historical entry with validation. Session lists with delete on the book page and on Insights. The active session survives app restarts.
+- **Insights** page (replaces Stats): books completed, pages read, pages per day, reading time, consistency (% of days with recorded reading), current and longest streaks, reading-challenge goal, completion rate (year and all time) and abandoned books. A full-year GitHub-style heatmap. Books completed and logged pages per month (separate charts, no dual axis, hover tooltips, whole-number ticks for counts). Genre donut (top 6 plus Other, legend with counts). Subject bars. Ratings distribution. Highlights. Most-read authors.
+- **Finish predictions** for every in-progress book: based on the last 3 weeks of that book's recorded pace, with an earliest–latest range. Marked "rough" with few data points, and "not enough data" when there's nothing recorded.
+- Chart colors use a CVD-validated categorical palette with separate light and dark steps (validated with the dataviz checker; the first palette failed the chroma check and was replaced).
+- Goodreads imports never create sessions or activity (tested).
 
 ## 6. Sync evaluation
 

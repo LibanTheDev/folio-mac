@@ -78,3 +78,45 @@ import Testing
         #expect(days.values.filter(\.touched).count == 1)  // only the day of the update counts as recorded
     }
 }
+
+@Suite struct InsightsTests {
+    let cal = Calendar(identifier: .gregorian)
+
+    func finished(_ title: String, _ date: String, subjects: [String], status: ReadingStatus = .read) -> Book {
+        let f = DateFormatter(); f.calendar = cal; f.dateFormat = "yyyy-MM-dd"
+        var b = Book(title: title, authors: ["A"], pageCount: 200, subjects: subjects)
+        b.status = status
+        b.dateFinished = status == .read ? f.date(from: date) : nil
+        b.dateStarted = f.date(from: date)
+        b.updatedAt = f.date(from: date)!
+        return b
+    }
+
+    @Test func monthlyGenresAndCompletionRate() {
+        let books = [
+            finished("A", "2025-01-10", subjects: ["Fantasy"]),
+            finished("B", "2025-01-20", subjects: ["Fantasy", "Adventure"]),
+            finished("C", "2025-03-05", subjects: ["History"]),
+            finished("D", "2025-04-01", subjects: ["Poetry"], status: .dnf),
+        ]
+        let now = cal.date(from: DateComponents(year: 2026, month: 2, day: 1))!
+        let i = Insights.make(year: 2025, books: books, sessions: [], now: now, calendar: cal)
+        #expect(i.monthlyCompleted[0] == 2)
+        #expect(i.monthlyCompleted[2] == 1)
+        #expect(i.genres.first == .init(name: "Fantasy", count: 2))
+        #expect(i.abandonedThisYear.count == 1)
+        #expect(i.completionRateYear == 0.75)
+        #expect(i.daysElapsed == 365)
+        #expect(i.consistency == 0)  // no recorded activity
+        #expect(i.stats.pagesRead == 600)
+    }
+
+    @Test func genreSlicesFoldIntoOther() {
+        let books = (0..<10).map { finished("B\($0)", "2025-05-0\($0 % 9 + 1)", subjects: ["Genre \($0)"]) }
+        let now = cal.date(from: DateComponents(year: 2026, month: 1, day: 1))!
+        let i = Insights.make(year: 2025, books: books, sessions: [], now: now, calendar: cal)
+        #expect(i.genres.count == 7)
+        #expect(i.genres.last?.name == "Other")
+        #expect(i.genres.reduce(0) { $0 + $1.count } == 10)
+    }
+}

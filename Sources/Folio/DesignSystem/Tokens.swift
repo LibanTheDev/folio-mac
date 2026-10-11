@@ -53,16 +53,25 @@ enum DS {
     static let statusRead = Color.dynamic(light: 0x3F8A62, dark: 0x83C9A0)
     static let statusDNF = Color.dynamic(light: 0xA65454, dark: 0xE09090)
 
-    // MARK: Data visualization (ordered, distinguishable in both appearances)
+    // MARK: Data visualization
+    /// Categorical series, assigned in this fixed order (validated for CVD separation in both modes).
+    /// Light and dark are separate steps of the same hues, not an automatic flip.
     static let chartSeries: [Color] = [
-        .dynamic(light: 0x3A78D0, dark: 0x86B4EE),
-        .dynamic(light: 0x3F8A62, dark: 0x83C9A0),
-        .dynamic(light: 0xB7791F, dark: 0xE8B25E),
-        .dynamic(light: 0x7A5BC0, dark: 0xB9A2F0),
-        .dynamic(light: 0xA65454, dark: 0xE09090),
-        .dynamic(light: 0x2E8C99, dark: 0x7FCAD4),
-        .dynamic(light: 0x8A8F99, dark: 0x9AA0AA),
+        .dynamic(light: 0x2A78D6, dark: 0x3987E5),  // blue
+        .dynamic(light: 0xEB6834, dark: 0xD95926),  // orange
+        .dynamic(light: 0x1BAF7A, dark: 0x199E70),  // aqua
+        .dynamic(light: 0xEDA100, dark: 0xC98500),  // yellow
+        .dynamic(light: 0xE87BA4, dark: 0xD55181),  // magenta
+        .dynamic(light: 0x008300, dark: 0x008300),  // green
+        .dynamic(light: 0x4A3AA7, dark: 0x9085E9),  // violet
+        .dynamic(light: 0xE34948, dark: 0xE66767),  // red
     ]
+    /// Neutral for "Other" buckets.
+    static let chartOther = Color.dynamic(light: 0xA3A9B3, dark: 0x6C727C)
+    /// Single-series magnitude color (sequential blue).
+    static let chartPrimary = Color.dynamic(light: 0x2A78D6, dark: 0x3987E5)
+    /// Recessive grid lines.
+    static let chartGrid = Color.dynamic(light: 0x1B2433, dark: 0xFFFFFF, lightAlpha: 0.07, darkAlpha: 0.08)
 
     // MARK: Shape
     enum Radius {

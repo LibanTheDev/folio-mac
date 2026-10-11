@@ -593,10 +593,13 @@ struct StatCard: View {
                 .font(.system(size: 26, weight: .semibold, design: .rounded))
                 .monospacedDigit()
                 .contentTransition(.numericText())
-            Text(label).font(DS.Text.callout).foregroundStyle(DS.textSecondary)
-            if let footnote {
-                Text(footnote).font(DS.Text.micro).foregroundStyle(DS.textTertiary)
-            }
+            Text(label).font(DS.Text.callout).foregroundStyle(DS.textSecondary).lineLimit(1)
+            Text(footnote ?? " ")
+                .font(DS.Text.micro)
+                .foregroundStyle(DS.textTertiary)
+                .lineLimit(1)
+                .truncationMode(.tail)
+                .help(footnote ?? "")
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)

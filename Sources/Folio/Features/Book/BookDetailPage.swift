@@ -22,6 +22,7 @@ private struct BookDetailContent: View {
     @Binding var book: Book
     @State private var showFullSynopsis = false
     @State private var confirmDelete = false
+    @State private var loggingSession = false
 
     var body: some View {
         ScrollView {
@@ -52,8 +53,17 @@ private struct BookDetailContent: View {
                         GlassCard(padding: 16) { details }
                         GlassCard(padding: 16) {
                             VStack(alignment: .leading, spacing: 10) {
-                                Text("Reading History").font(DS.Text.headline)
+                                HStack {
+                                    Text("Reading History").font(DS.Text.headline)
+                                    Spacer()
+                                    Button { loggingSession = true } label: { Label("Log", systemImage: "plus") }
+                                        .buttonStyle(GhostButtonStyle())
+                                        .help("Log a past reading session")
+                                }
                                 ReadingHistoryList(book: book)
+                                if !library.sessions(for: book.id).isEmpty {
+                                    SessionList(bookID: book.id, limit: 6)
+                                }
                             }
                         }
                         GlassCard(padding: 16) {
@@ -71,6 +81,9 @@ private struct BookDetailContent: View {
             .padding(.vertical, 12)
             .frame(maxWidth: 1100, alignment: .leading)
             .frame(maxWidth: .infinity)
+        }
+        .sheet(isPresented: $loggingSession) {
+            LogSessionSheet(bookID: book.id).environmentObject(library)
         }
         .confirmationDialog("Remove “\(book.title)” from your library?", isPresented: $confirmDelete) {
             Button("Remove", role: .destructive) {
