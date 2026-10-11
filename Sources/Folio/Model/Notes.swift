@@ -60,6 +60,14 @@ struct BookNote: Codable, Hashable, Identifiable {
     var tags: [String] = []
     /// Manual connections to notes in this or other books.
     var links: [UUID] = []
+    /// Set for notes imported from another app.
+    var source: NoteSource?
+
+    /// True when an imported note still matches what was imported (no local edits, tags or links).
+    var isUntouchedImport: Bool {
+        guard let source else { return false }
+        return text == source.importedText && tags.isEmpty && links.isEmpty
+    }
 
     init(id: UUID = UUID(), created: Date = Date(), kind: Kind = .reflection, text: String, page: Int? = nil,
          chapter: String? = nil, tags: [String] = [], links: [UUID] = []) {
@@ -72,7 +80,7 @@ struct BookNote: Codable, Hashable, Identifiable {
         self.init(kind: isQuote ? .quote : .reflection, text: text, page: page)
     }
 
-    private enum CodingKeys: String, CodingKey { case id, created, updated, kind, text, page, chapter, tags, links, isQuote }
+    private enum CodingKeys: String, CodingKey { case id, created, updated, kind, text, page, chapter, tags, links, isQuote, source }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -84,6 +92,7 @@ struct BookNote: Codable, Hashable, Identifiable {
         chapter = c.value(.chapter, nil)
         tags = c.value(.tags, [])
         links = c.value(.links, [])
+        source = c.value(.source, nil)
         if let kind: Kind = c.value(.kind, nil) {
             self.kind = kind
         } else {
@@ -103,6 +112,7 @@ struct BookNote: Codable, Hashable, Identifiable {
         try c.encodeIfPresent(chapter, forKey: .chapter)
         try c.encode(tags, forKey: .tags)
         try c.encode(links, forKey: .links)
+        try c.encodeIfPresent(source, forKey: .source)
     }
 
     var isQuote: Bool { kind.isFromBook }

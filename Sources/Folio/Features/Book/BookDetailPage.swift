@@ -125,9 +125,15 @@ private struct BookDetailContent: View {
                         .help("Show books by \(a)")
                     }
                 }
-                Text([book.publishYear.map(String.init), book.pageCount.map { "\($0) pages" }, book.publisher]
-                    .compactMap { $0 }.joined(separator: " · "))
-                    .font(DS.Text.callout).foregroundStyle(DS.textSecondary)
+                HStack(spacing: 8) {
+                    Text([book.publishYear.map(String.init), book.pageCount.map { "\($0) pages" }, book.publisher, book.format]
+                        .compactMap { $0 }.joined(separator: " · "))
+                        .font(DS.Text.callout).foregroundStyle(DS.textSecondary)
+                    if book.appleBooksID != nil { AppleBooksBadge(text: "In Apple Books") }
+                }
+                if book.status != .wantToRead || book.externalProgress != nil {
+                    ProgressSourceLabel(book: book).font(DS.Text.caption)
+                }
 
                 HStack(spacing: 14) {
                     StatusPicker(book: book)

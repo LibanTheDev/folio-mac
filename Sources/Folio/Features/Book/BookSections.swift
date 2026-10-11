@@ -47,9 +47,12 @@ struct ProgressPanel: View {
                     .contentTransition(.numericText())
             }
             ProgressBar(value: book.progress, tint: DS.statusReading, height: 6)
-            Text(ReadingForecast.summary(for: book, sessions: library.sessions(for: book.id)))
-                .font(DS.Text.caption)
-                .foregroundStyle(DS.textSecondary)
+            if book.progressProvenance == .loggedInFolio {
+                Text(ReadingForecast.summary(for: book, sessions: library.sessions(for: book.id)))
+                    .font(DS.Text.caption)
+                    .foregroundStyle(DS.textSecondary)
+            }
+            ProgressSourceLabel(book: book).font(DS.Text.caption)
             HStack(spacing: 6) {
                 TextField("Page", text: $pageInput)
                     .textFieldStyle(GlassFieldStyle())
@@ -141,6 +144,12 @@ struct NoteRow: View {
                         Text(note.created.shortString)
                         if !note.tags.isEmpty { Text("·"); Text(note.tags.map { "#\($0)" }.joined(separator: " ")) }
                         if !note.links.isEmpty { Text("·"); Label("\(note.links.count)", systemImage: "link") }
+                        if note.source?.kind == .appleBooks {
+                            Text("·")
+                            Label("Apple Books", systemImage: "apple.logo")
+                                .help(note.isUntouchedImport ? "Imported from Apple Books. Edits in Folio are kept and won't be overwritten."
+                                                             : "Imported from Apple Books and edited in Folio. Your version is kept.")
+                        }
                     }
                     .font(DS.Text.micro)
                     .foregroundStyle(DS.textTertiary)

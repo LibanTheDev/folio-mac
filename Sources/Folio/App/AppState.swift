@@ -11,6 +11,7 @@ enum Scope: Hashable {
     case status(ReadingStatus)
     case tag(String)
     case shelf(UUID)
+    case appleBooks
 }
 
 @MainActor

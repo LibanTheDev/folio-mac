@@ -18,6 +18,7 @@ struct FolioApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
     @StateObject private var library = Library()
     @StateObject private var app = AppState()
+    @StateObject private var appleBooks = AppleBooksSync()
     @AppStorage("appearance") private var appearance = Appearance.system
 
     var body: some Scene {
@@ -25,6 +26,8 @@ struct FolioApp: App {
             ContentView()
                 .environmentObject(library)
                 .environmentObject(app)
+                .environmentObject(appleBooks)
+                .onAppear { appleBooks.attach(library) }
                 .frame(minWidth: 1080, minHeight: 680)
                 .preferredColorScheme(appearance.colorScheme)
         }
@@ -86,6 +89,7 @@ struct FolioApp: App {
         Settings {
             SettingsView()
                 .environmentObject(library)
+                .environmentObject(appleBooks)
                 .preferredColorScheme(appearance.colorScheme)
         }
     }
