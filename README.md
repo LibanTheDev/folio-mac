@@ -11,8 +11,9 @@ Requires macOS 14+ and the Xcode Command Line Tools.
 ```bash
 ./build_app.sh        # builds Folio.app (release), icon included, ad-hoc signed
 open Folio.app
-swift test            # 60 tests (Swift Testing)
+swift test            # 63 tests (Swift Testing)
 FOLIO_NETWORK_TESTS=1 swift test --filter NetworkTests   # optional live Open Library checks
+FOLIO_ANTHROPIC_KEY=… swift test --filter LiveAITests    # optional live Claude checks (a few cents)
 ```
 
 Your data lives in `~/Library/Application Support/Folio/library.json`, with daily backups in `Backups/`. To try Folio against a throwaway library, set `FOLIO_DATA_DIR`:

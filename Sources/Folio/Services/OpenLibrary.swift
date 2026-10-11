@@ -71,19 +71,33 @@ enum OpenLibrary {
         return try? await get(c.url!, as: SearchResponse.self).docs.first
     }
 
-    /// Title + author search used to verify AI suggestions.
+    /// Title + author search used to verify AI suggestions. Open Library's field search is literal, so this
+    /// falls back through looser variants: full author → surname only (initials like "R.M." break matching) →
+    /// title without a leading article → general query.
     static func searchTitleAuthor(title: String, author: String, limit: Int = 5) async throws -> [OLDoc] {
-        // Long subtitles often differ between editions; search on the main title.
         let main = title.split(whereSeparator: { $0 == ":" || $0 == "(" }).first.map {
             $0.trimmingCharacters(in: .whitespaces)
         } ?? title
-        var c = URLComponents(string: "https://openlibrary.org/search.json")!
-        c.queryItems = [.init(name: "title", value: main), .init(name: "author", value: author),
-                        .init(name: "limit", value: "\(limit)"), .init(name: "fields", value: fields)]
-        let docs = try await get(c.url!, as: SearchResponse.self).docs
-        if !docs.isEmpty { return docs }
-        // Fall back to a general query (handles subtitle and author-format differences).
-        return try await search("\(main) \(author)", limit: limit)
+        let surname = author.split(separator: " ").last.map(String.init) ?? author
+        let bare = main.replacingOccurrences(of: #"^(the|a|an)\s+"#, with: "", options: [.regularExpression, .caseInsensitive])
+        var attempts: [(String, String)] = [(main, author)]
+        if surname != author { attempts.append((main, surname)) }
+        if bare != main { attempts.append((bare, surname)) }
+        var lastError: Error?
+        for (t, a) in attempts {
+            var c = URLComponents(string: "https://openlibrary.org/search.json")!
+            c.queryItems = [.init(name: "title", value: t), .init(name: "author", value: a),
+                            .init(name: "limit", value: "\(limit)"), .init(name: "fields", value: fields)]
+            do {
+                let docs = try await get(c.url!, as: SearchResponse.self).docs
+                if !docs.isEmpty { return docs }
+            } catch {
+                lastError = error
+            }
+        }
+        if let docs = try? await search("\(bare) \(surname)", limit: limit), !docs.isEmpty { return docs }
+        if let lastError { throw lastError }
+        return []
     }
 
     private static let requestWords: Set<String> = [

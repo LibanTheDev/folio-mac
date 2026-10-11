@@ -137,7 +137,7 @@ Updated at each milestone below.
 |---|---|
 | Release build (`swift build -c release`, `build_app.sh`) | ✅ 0 errors, **0 warnings** |
 | Type checking / lint | ✅ The Swift 6.1 compiler is the type checker. `swift format lint` (config in `.swift-format`) reports only whitespace/layout differences and no semantic findings. A mass reformat was intentionally not applied to keep history readable. |
-| Tests | ✅ **60 passing** (Swift Testing), plus an opt-in live Open Library suite that passes |
+| Tests | ✅ **63 passing** (Swift Testing), plus opt-in live suites: Open Library verification and Claude end-to-end, both passing |
 | Persistence & migrations | ✅ v1 → v2 migration with pre-migration backup (tested and seen in the app). Tolerant decoding. An unreadable file is never overwritten. Fractional-second dates round-trip. Restore makes a safety backup. |
 | Goodreads data integrity | ✅ CSV → merge → save → reload test checks every imported field. Re-import keeps Folio-only data. Imports never create sessions or activity. |
 | Navigation | ✅ Every page, the detail page, the inspector, sheets, the palette and Settings were driven in the running app |
@@ -148,7 +148,7 @@ Updated at each milestone below.
 | Secrets & private data | ✅ The staged tree was scanned for keys and tokens; `.gitignore` excludes `.env`, keys, `library.json`, SQLite and build output. The test fixture contains only synthetic demo data. |
 
 **Known limitations**
-- AI features (recommendations, Ask Folio synthesis) were not run against a live model in this environment: there was no API key and no local model server. Response parsing, validation and grounding are unit-tested against the documented response shapes.
+- ~~AI features not run against a live model~~ **Verified live against `claude-opus-5-5`** (opt-in `LiveAITests`, key read from `FOLIO_ANTHROPIC_KEY`, never stored): structured connection check; discovery returned 8/8 suggestions verified on Open Library after fixing lookup fallbacks (author initials and leading articles had caused 2 real books to be rejected); Ask Folio produced note-cited paragraphs with zero invalid citations or unverified quotes. The OpenAI-compatible provider remains untested against a live server.
 - Native drag sessions can't be synthesized by the automation used for GUI checks. Drop handling is code-reviewed and uses standard SwiftUI `Transferable` APIs; please verify by hand.
 - Live multi-device sync needs Apple Developer signing (see §6). Daily iCloud Drive backups are available now.
 - Notifications need the user's permission the first time reminders are enabled. They were not triggered during QA, to avoid prompting on this Mac.
