@@ -43,7 +43,7 @@ Status legend: ✅ done · 🚧 in progress · ⏳ planned · ⛔ blocked (needs
 | 3 | Library gallery, smart shelves, book detail, rereads | ✅ | see log |
 | 4 | Live home dashboard | ✅ | see log |
 | 5 | Reading sessions and analytics | ✅ | see log |
-| 6 | Personal knowledge vault and search | ⏳ | |
+| 6 | Personal knowledge vault and search | ✅ | see log |
 | 7 | AI-powered discovery | ⏳ | |
 | 8 | Ask Folio and knowledge graph | ⏳ | |
 | 9 | Command palette, notifications, backups/sync, export | ⏳ | |
@@ -92,6 +92,14 @@ Updated at each milestone below.
 - **Finish predictions** for every in-progress book: based on the last 3 weeks of that book's recorded pace, with an earliest–latest range. Marked "rough" with few data points, and "not enough data" when there's nothing recorded.
 - Chart colors use a CVD-validated categorical palette with separate light and dark steps (validated with the dataviz checker; the first palette failed the chroma check and was replaced).
 - Goodreads imports never create sessions or activity (tested).
+
+### Milestone 6: Personal knowledge vault
+- **Knowledge** page (top nav and sidebar): every highlight, quote, reflection, chapter note, lesson, mental model, takeaway and question across all books. Filter by type, book and tag; search by keyword plus meaning.
+- **Note editor:** a native `NSTextView` Markdown editor (undo, spellcheck) with selection-aware formatting (bold ⌘B, italic ⌘I, code, bullets, quotes, links) and an Edit/Preview toggle. Chapter, page and tags. Autosaves on every keystroke (debounced write, verified on disk). Notes render bullets, block quotes and headings.
+- **Global search** (top field on Home/Insights): books (title, author, tags, description, review) and notes (text, tags, chapter), with snippets and "matched X" labels. Every result opens its source (book page or the exact note). Stop words and a 50% keyword-coverage rule keep it precise.
+- **Semantic retrieval, fully on-device:** Apple `NaturalLanguage` sentence embeddings, cached on disk in Caches (regenerable, never exported). The cutoff is relative (mean + 0.8 SD with a floor), because absolute similarity from this model varies with query length (measured before tuning).
+- **Cross-book connections:** manual links between notes (stored one-way, displayed with backlinks), a link picker, unlinking, and cleanup when notes or books are deleted. **Suggested connections** come from local embeddings (opt-in per suggestion, nothing uploaded).
+- Tests: keyword search and snippets, stop words, links/backlinks/cleanup, timestamp-on-change, Markdown stripping, semantic retrieval with no shared keywords, cutoff selection.
 
 ## 6. Sync evaluation
 

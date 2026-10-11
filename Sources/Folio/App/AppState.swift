@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum Page: String, CaseIterable, Identifiable {
-    case home = "Home", books = "My Books", discover = "Discover", stats = "Insights"
+    case home = "Home", books = "My Books", knowledge = "Knowledge", discover = "Discover", stats = "Insights"
     var id: String { rawValue }
 }
 
@@ -25,6 +25,8 @@ final class AppState: ObservableObject {
     @Published var searchFocusRequests = 0
     /// Shelf editor presentation: a shelf to edit, or a new draft.
     @Published var editingShelf: Shelf?
+    /// Note to select when the Knowledge page appears.
+    @Published var focusedNote: UUID?
 
     func go(_ page: Page) {
         self.page = page
@@ -52,6 +54,14 @@ final class AppState: ObservableObject {
             detailBook = id
             inspectorShown = false
         }
+    }
+
+    /// Opens a note in the Knowledge vault.
+    func openNote(_ id: UUID) {
+        search = ""
+        focusedNote = id
+        page = .knowledge
+        detailBook = nil
     }
 
     func closeDetail() {

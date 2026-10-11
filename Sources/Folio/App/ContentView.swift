@@ -41,9 +41,6 @@ struct ContentView: View {
                 .environmentObject(library)
                 .environmentObject(app)
         }
-        .onChange(of: app.search) { _, new in
-            if !new.isEmpty, app.page == .home || app.page == .stats { app.show(.all) }
-        }
         .sheet(isPresented: $library.showingAddBook) {
             AddBookSheet(initialStatus: library.addBookStatus)
                 .environmentObject(library)
@@ -65,7 +62,16 @@ struct ContentView: View {
     }
 
     @ViewBuilder private var pageContent: some View {
+        if !app.search.isEmpty, app.page == .home || app.page == .stats {
+            SearchResultsView()
+        } else {
+            pageBody
+        }
+    }
+
+    @ViewBuilder private var pageBody: some View {
         switch app.page {
+        case .knowledge: KnowledgeView()
         case .home: HomeView()
         case .books: LibraryView()
         case .discover: DiscoverView()
@@ -109,7 +115,7 @@ struct TopBar: View {
             HStack(spacing: 6) {
                 Spacer()
                 if searchOpen || !app.search.isEmpty {
-                    GlassSearchField(prompt: app.page == .discover ? "Search Open Library" : "Search your books",
+                    GlassSearchField(prompt: searchPrompt,
                                      text: $app.search, focus: $searchFocused,
                                      onEscape: { app.search = ""; searchOpen = false })
                         .frame(width: 220)
@@ -137,6 +143,15 @@ struct TopBar: View {
         .onChange(of: app.searchFocusRequests) { openSearch() }
         .onChange(of: searchFocused) { _, focused in
             if !focused, app.search.isEmpty { searchOpen = false }
+        }
+    }
+
+    private var searchPrompt: String {
+        switch app.page {
+        case .discover: "Search Open Library"
+        case .books: "Filter your books"
+        case .knowledge: "Search your notes"
+        default: "Search books and notes"
         }
     }
 

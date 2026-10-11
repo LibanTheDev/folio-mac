@@ -244,18 +244,55 @@ struct NoteComposer: View {
     }
 }
 
-/// Renders inline Markdown (bold, italics, links, code) with a plain-text fallback.
+/// Renders note Markdown: inline styles plus bullets, block quotes and headings.
 struct MarkdownText: View {
     let text: String
     var serifItalic = false
+    var lineLimit: Int?
+
+    private enum Block: Hashable { case paragraph(String), bullet(String), quote(String), heading(String) }
+
+    private var blocks: [Block] {
+        text.components(separatedBy: "\n").compactMap { raw in
+            let line = raw.trimmingCharacters(in: .whitespaces)
+            if line.isEmpty { return nil }
+            if line.hasPrefix("- ") || line.hasPrefix("* ") { return .bullet(String(line.dropFirst(2))) }
+            if line.hasPrefix("> ") { return .quote(String(line.dropFirst(2))) }
+            if line.hasPrefix("#") { return .heading(line.drop { $0 == "#" }.trimmingCharacters(in: .whitespaces)) }
+            return .paragraph(line)
+        }
+    }
+
+    private func inline(_ s: String) -> AttributedString {
+        (try? AttributedString(markdown: s, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace))) ?? AttributedString(s)
+    }
+
     var body: some View {
-        let attributed = (try? AttributedString(markdown: text, options: .init(interpretedSyntax: .inlineOnlyPreservingWhitespace)))
-            ?? AttributedString(text)
-        Text(attributed)
-            .font(serifItalic ? DS.serif(13.5).italic() : .system(size: 12.5))
-            .lineSpacing(2.5)
-            .textSelection(.enabled)
-            .frame(maxWidth: .infinity, alignment: .leading)
+        VStack(alignment: .leading, spacing: 4) {
+            ForEach(Array(blocks.enumerated()), id: \.offset) { _, block in
+                switch block {
+                case .paragraph(let s):
+                    Text(inline(s)).font(serifItalic ? DS.serif(13.5).italic() : .system(size: 12.5))
+                case .bullet(let s):
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text("•").foregroundStyle(DS.textTertiary)
+                        Text(inline(s)).font(.system(size: 12.5))
+                    }
+                case .quote(let s):
+                    HStack(spacing: 8) {
+                        RoundedRectangle(cornerRadius: 1).fill(DS.textTertiary.opacity(0.5)).frame(width: 2)
+                        Text(inline(s)).font(DS.serif(13).italic()).foregroundStyle(DS.textSecondary)
+                    }
+                    .fixedSize(horizontal: false, vertical: true)
+                case .heading(let s):
+                    Text(inline(s)).font(.system(size: 13, weight: .semibold))
+                }
+            }
+        }
+        .lineSpacing(2.5)
+        .lineLimit(lineLimit)
+        .textSelection(.enabled)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
