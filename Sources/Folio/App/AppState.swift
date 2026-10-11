@@ -27,6 +27,16 @@ final class AppState: ObservableObject {
     @Published var editingShelf: Shelf?
     /// Note to select when the Knowledge page appears.
     @Published var focusedNote: UUID?
+    @Published var paletteShown = false
+    /// Most recently opened books, newest first.
+    @Published private(set) var recentBooks: [UUID] = (UserDefaults.standard.stringArray(forKey: "recentBooks") ?? []).compactMap(UUID.init)
+
+    private func noteRecent(_ id: UUID) {
+        recentBooks.removeAll { $0 == id }
+        recentBooks.insert(id, at: 0)
+        recentBooks = Array(recentBooks.prefix(8))
+        UserDefaults.standard.set(recentBooks.map(\.uuidString), forKey: "recentBooks")
+    }
 
     func go(_ page: Page) {
         self.page = page
@@ -41,6 +51,7 @@ final class AppState: ObservableObject {
 
     /// Selects a book and shows it in the inspector.
     func open(_ id: UUID) {
+        noteRecent(id)
         Motion.perform {
             selectedBook = id
             inspectorShown = true
@@ -49,6 +60,7 @@ final class AppState: ObservableObject {
 
     /// Opens the full book page.
     func openDetail(_ id: UUID) {
+        noteRecent(id)
         Motion.perform {
             selectedBook = id
             detailBook = id

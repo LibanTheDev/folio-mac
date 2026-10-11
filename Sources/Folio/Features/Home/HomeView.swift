@@ -308,9 +308,9 @@ private struct UpNextQueue: View {
                                 Button("Start Reading") { library.setStatus(book.id, .reading) }
                                 Button("Move to Front") { library.moveInQueue(book.id, to: 0) }
                             }
-                            .draggable(book.id.uuidString) { CoverView(book: book).frame(width: 70) }
-                            .dropDestination(for: String.self) { items, _ in
-                                guard let id = items.compactMap(UUID.init(uuidString:)).first, id != book.id else { return false }
+                            .draggable(FolioDrag.book(book)) { CoverView(book: book).frame(width: 70) }
+                            .dropDestination(for: FolioDrag.self) { items, _ in
+                                guard let id = items.first(where: { $0.kind == .book })?.id, id != book.id else { return false }
                                 Motion.perform { library.moveInQueue(id, to: i) }
                                 return true
                             } isTargeted: { targeted = $0 ? book.id : (targeted == book.id ? nil : targeted) }

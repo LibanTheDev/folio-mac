@@ -54,8 +54,15 @@ struct FolioApp: App {
             CommandGroup(after: .importExport) {
                 Button("Import Goodreads Library…") { library.importGoodreads() }
                     .keyboardShortcut("i", modifiers: [.command, .shift])
-                Button("Export Library as CSV…") { library.exportCSV() }
-                    .keyboardShortcut("e", modifiers: [.command, .shift])
+                Button("Restore from Folio Backup…") { library.restoreFromBackup() }
+                Divider()
+                Menu("Export") {
+                    Button("Complete Folio Backup (JSON)…") { library.exportFolioBackup() }
+                        .keyboardShortcut("e", modifiers: [.command, .shift])
+                    Button("Notes & Highlights as Markdown…") { library.exportMarkdownNotes() }
+                    Button("Library as Goodreads CSV…") { library.exportCSV() }
+                    Button("Reading Sessions as CSV…") { library.exportSessionsCSV() }
+                }
             }
             CommandGroup(after: .toolbar) {
                 ForEach(Array(Page.allCases.enumerated()), id: \.element) { i, page in
@@ -63,6 +70,8 @@ struct FolioApp: App {
                         .keyboardShortcut(KeyEquivalent(Character(String(i + 1))))
                 }
                 Divider()
+                Button("Command Palette…") { app.paletteShown.toggle() }
+                    .keyboardShortcut("k")
                 Button("Find") { app.searchFocusRequests += 1 }
                     .keyboardShortcut("f")
                 Button(app.inspectorShown ? "Hide Inspector" : "Show Inspector") { app.toggleInspector() }

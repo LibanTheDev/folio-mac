@@ -88,7 +88,13 @@ struct SidebarView: View {
             Spacer()
             Menu {
                 Button("Import Goodreads Library…") { library.importGoodreads() }
-                Button("Export Library as CSV…") { library.exportCSV() }
+                Menu("Export") {
+                    Button("Complete Folio Backup…") { library.exportFolioBackup() }
+                    Button("Notes as Markdown…") { library.exportMarkdownNotes() }
+                    Button("Goodreads CSV…") { library.exportCSV() }
+                    Button("Reading Sessions CSV…") { library.exportSessionsCSV() }
+                }
+                SettingsLink { Text("Settings…") }
                 Divider()
                 Picker("Appearance", selection: $appearance) {
                     ForEach(Appearance.allCases) { Text($0.title).tag($0) }
@@ -232,16 +238,19 @@ private struct ShelfRow: View {
                 RoundedRectangle(cornerRadius: DS.Radius.small + 1, style: .continuous)
                     .strokeBorder(targeted ? DS.accent : .clear, lineWidth: 1.5)
             )
-            .draggable("shelf:\(shelf.id.uuidString)")
-            .dropDestination(for: String.self) { items, _ in
+            .draggable(FolioDrag.shelf(shelf))
+            .dropDestination(for: FolioDrag.self) { items, _ in
                 var handled = false
                 for item in items {
-                    if item.hasPrefix("shelf:"), let id = UUID(uuidString: String(item.dropFirst(6))) {
-                        library.moveShelf(id, before: shelf.id)
+                    switch item.kind {
+                    case .shelf:
+                        library.moveShelf(item.id, before: shelf.id)
                         handled = true
-                    } else if shelf.kind == .manual, let id = UUID(uuidString: item) {
-                        library.add([id], toShelf: shelf.id)
+                    case .book where shelf.kind == .manual:
+                        library.add([item.id], toShelf: shelf.id)
                         handled = true
+                    default:
+                        break
                     }
                 }
                 return handled

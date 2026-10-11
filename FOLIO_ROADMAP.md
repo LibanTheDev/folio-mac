@@ -46,7 +46,7 @@ Status legend: ✅ done · 🚧 in progress · ⏳ planned · ⛔ blocked (needs
 | 6 | Personal knowledge vault and search | ✅ | see log |
 | 7 | AI-powered discovery | ✅ | see log |
 | 8 | Ask Folio and knowledge graph | ✅ | see log |
-| 9 | Command palette, notifications, backups/sync, export | ⏳ | |
+| 9 | Command palette, notifications, backups/sync, export | ✅ | see log |
 | 10 | Final QA | ⏳ | |
 
 ## 4. Known constraints
@@ -123,6 +123,27 @@ Updated at each milestone below.
 - Tests: citation and quote validation (valid, fabricated, missing), section ordering, the prompt with and without sources, retrieval by named author and by book title and tags, graph construction (traceable edges, singleton concepts dropped), focus neighbourhood, and deterministic, normalized layout.
 - ⚠️ As with milestone 7, synthesized answers were not exercised against a live model (no key or local server here). The local evidence mode and all validation logic were verified.
 
+### Milestone 9: Premium Mac integrations
+- **⌘K command palette:** search books and notes; go to pages, statuses, shelves and tags; recent books; actions (add book, new collection or smart shelf, import, export backup or Markdown, open Settings); per-book **Update Progress** (asks for a page) and **Start Reading Session**; live session pause/resume/finish. Arrow keys, Return and Escape all work. Also a ⌘ button in the top bar. Verified end to end: updating a page from the palette moved progress and the stats.
+- **Drag and drop:** a typed `Transferable` (`app.folio.reader.item`, declared in Info.plist). Inside Folio it carries a book or shelf reference; dropped into other apps it becomes "Title by Author" (no internal IDs leak). Works for board columns (status), sidebar collections (add), shelf reordering, and the Up Next queue. **Drop a Goodreads CSV anywhere on the window** to import it.
+- **Reading reminders** (Settings → Reminders): local notifications on chosen weekdays and time, mentioning current books and streak. Permission is requested only when the user turns them on.
+- **Data ownership:** File → Export → complete Folio backup (JSON), notes as Markdown (one file per book with YAML front matter, notes grouped by type, `[[links]]` for connections, plus an index; works with Obsidian), Goodreads CSV, and reading sessions CSV. File → Restore from Folio Backup shows what's inside and saves the current library to Backups first.
+- **Offline-first:** library, tracking, notes, search (including semantic), analytics, map and the evidence view need no network. Open Library and AI calls degrade to clear messages, and covers fall back to generated placeholders.
+- Keyboard: ⌘1–6 pages, ⌘K palette, ⌘F search, ⌘N add book, ⇧⌘N collection, ⌥⌘N smart shelf, ⌥⌘I inspector, ⌘[ back from a book page, ⌘B/⌘I in the note editor, ⌘↩ submit in Discover and Ask.
+- Tests: Markdown export, sessions CSV escaping, iCloud backup daily write and pruning, reminder triggers and copy, drag payload, and restore safety backup.
+
 ## 6. Sync evaluation
 
-To be completed in milestone 9.
+**Decision: versioned iCloud Drive backups (implemented, opt-in). Live multi-device sync is not enabled yet.**
+
+| Option | Verdict |
+|---|---|
+| CloudKit / NSPersistentCloudKitContainer / SwiftData sync | Proper conflict-aware sync, but needs an **Apple Developer team, the iCloud entitlement, a CloudKit container and a provisioning profile**. The app is currently ad-hoc signed by `build_app.sh`, so it can't use CloudKit. It also means moving persistence from JSON to Core Data or SwiftData with a field-level merge policy. |
+| Shared JSON in iCloud Drive (live) | Rejected. Two Macs writing one file produces last-writer-wins clobbering or "conflicted copy" files, and a merge applied at the wrong moment could lose notes. That's not safe enough for years of reading history. |
+| **Dated snapshots in iCloud Drive** | **Implemented.** Settings → General → "Keep daily backups in iCloud Drive" writes `Folio YYYY-MM-DD.folio.json` once per day (30 kept) plus "Back Up Now". Restore on any Mac via File → Restore from Folio Backup. No entitlements needed, and the local data is never at risk. |
+
+**To enable real sync later:**
+1. Create an App ID with the iCloud (CloudKit) capability and a container, e.g. `iCloud.app.folio.reader`.
+2. Sign with a Developer ID certificate and an entitlements file (`com.apple.developer.icloud-container-identifiers`, `com.apple.developer.icloud-services = CloudKit`).
+3. Move the store to SwiftData or Core Data with CloudKit mirroring. Every record already carries a stable UUID and `updatedAt` (books and notes), which a per-record last-writer-wins merge can use.
+4. Keep the JSON export and backups as the safety net.

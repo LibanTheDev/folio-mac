@@ -235,7 +235,7 @@ struct LibraryView: View {
                         .onTapGesture(count: 2) { app.openDetail(book.id) }
                         .onTapGesture { app.open(book.id) }
                         .contextMenu { BookContextMenu(ids: [book.id], shelf: currentShelf, pendingDelete: $pendingDelete) }
-                        .draggable(book.id.uuidString) {
+                        .draggable(FolioDrag.book(book)) {
                             CoverView(book: book).frame(width: 80)
                         }
                 }
@@ -369,7 +369,7 @@ private struct BoardColumn<M: View>: View {
                             .onTapGesture(count: 2) { app.openDetail(book.id) }
                             .onTapGesture { app.open(book.id) }
                             .contextMenu { menu([book.id]) }
-                            .draggable(book.id.uuidString) {
+                            .draggable(FolioDrag.book(book)) {
                                 BoardCard(book: book, selected: true).frame(width: 240)
                             }
                     }
@@ -401,8 +401,8 @@ private struct BoardColumn<M: View>: View {
         }
         .frame(width: 244)
         .frame(maxHeight: .infinity, alignment: .top)
-        .dropDestination(for: String.self) { items, _ in
-            let ids = items.compactMap(UUID.init(uuidString:))
+        .dropDestination(for: FolioDrag.self) { items, _ in
+            let ids = items.filter { $0.kind == .book }.map(\.id)
             guard !ids.isEmpty else { return false }
             Motion.perform { ids.forEach { library.setStatus($0, status) } }
             return true

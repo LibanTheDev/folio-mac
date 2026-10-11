@@ -34,6 +34,10 @@ final class Library: ObservableObject {
         load()
         guard autosave else { return }
         store.dailyBackupIfNeeded()
+        if UserDefaults.standard.bool(forKey: "backup.icloud"), loadError == nil,
+           let data = try? LibraryStore.encoder().encode(snapshot) {
+            try? CloudBackup.backup(data)
+        }
 
         Publishers.MergeMany(
             $books.map { _ in () }.eraseToAnyPublisher(),

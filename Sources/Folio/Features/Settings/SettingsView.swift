@@ -5,6 +5,7 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             GeneralSettings().tabItem { Label("General", systemImage: "gearshape") }
+            RemindersSettings().tabItem { Label("Reminders", systemImage: "bell") }
             AISettingsView().tabItem { Label("AI", systemImage: "sparkles") }
         }
         .frame(width: 580, height: 640)
@@ -15,11 +16,27 @@ struct SettingsView: View {
 private struct GeneralSettings: View {
     @EnvironmentObject var library: Library
     @AppStorage("appearance") private var appearance = Appearance.system
+    @AppStorage("backup.icloud") private var icloudBackup = false
+    @State private var backupStatus: String?
 
     var body: some View {
         Form {
             Picker("Appearance", selection: $appearance) {
                 ForEach(Appearance.allCases) { Text($0.title).tag($0) }
+            }
+            Section("iCloud Drive backup") {
+                if CloudBackup.isAvailable {
+                    Toggle("Keep daily backups in iCloud Drive", isOn: $icloudBackup)
+                    HStack {
+                        Button("Back Up Now") { backupNow() }
+                        if let backupStatus { Text(backupStatus).font(.caption).foregroundStyle(.secondary) }
+                    }
+                    Text("Saves a dated copy of your library to “iCloud Drive › Folio Backups” once a day (the last 30 are kept), so you can restore on another Mac with File › Restore from Folio Backup. This is a backup, not live sync: see the roadmap for why.")
+                        .font(.caption).foregroundStyle(.secondary)
+                } else {
+                    Text("iCloud Drive isn't turned on for this Mac. Turn it on in System Settings to keep off-Mac backups.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
             }
             Section("Your data") {
                 LabeledContent("Library file") {
@@ -31,12 +48,82 @@ private struct GeneralSettings: View {
                         NSWorkspace.shared.open(library.store.backupsURL)
                     }
                 }
-                Text("Folio keeps a daily backup (last 14 days) and a copy before every migration or restore. Everything stays on this Mac.")
+                Text("Folio keeps a daily backup (last 14 days) and a copy before every migration or restore.")
                     .font(.caption).foregroundStyle(.secondary)
             }
         }
         .formStyle(.grouped)
         .padding(.vertical, 8)
+    }
+
+    private func backupNow() {
+        do {
+            let data = try LibraryStore.encoder().encode(library.snapshot)
+            if let url = try CloudBackup.backup(data) { backupStatus = "Saved \(url.lastPathComponent)" }
+        } catch {
+            backupStatus = error.localizedDescription
+        }
+    }
+}
+
+private struct RemindersSettings: View {
+    @EnvironmentObject var library: Library
+    @AppStorage("reminders.enabled") private var enabled = false
+    @AppStorage("reminders.hour") private var hour = 21
+    @AppStorage("reminders.minute") private var minute = 0
+    @AppStorage("reminders.weekdays") private var weekdaysRaw = "1,2,3,4,5,6,7"
+    @State private var status: String?
+
+    private var weekdays: Set<Int> { Set(weekdaysRaw.split(separator: ",").compactMap { Int($0) }) }
+
+    private var time: Binding<Date> {
+        Binding(get: { Calendar.current.date(from: DateComponents(hour: hour, minute: minute)) ?? Date() },
+                set: { d in
+                    let c = Calendar.current.dateComponents([.hour, .minute], from: d)
+                    hour = c.hour ?? 21; minute = c.minute ?? 0
+                })
+    }
+
+    var body: some View {
+        Form {
+            Section {
+                Toggle("Remind me to read", isOn: $enabled)
+                DatePicker("Time", selection: time, displayedComponents: .hourAndMinute).disabled(!enabled)
+                HStack(spacing: 4) {
+                    ForEach(1...7, id: \.self) { d in
+                        let on = weekdays.contains(d)
+                        Button(Calendar.current.veryShortWeekdaySymbols[d - 1]) {
+                            var set = weekdays
+                            if on { set.remove(d) } else { set.insert(d) }
+                            weekdaysRaw = set.sorted().map(String.init).joined(separator: ",")
+                        }
+                        .buttonStyle(.bordered)
+                        .tint(on ? .accentColor : .secondary)
+                        .accessibilityAddTraits(on ? .isSelected : [])
+                    }
+                }
+                .disabled(!enabled)
+                if let status { Text(status).font(.caption).foregroundStyle(.secondary) }
+                Text("Reminders mention what you're currently reading and your streak, and are delivered by macOS even when Folio is closed.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+        .padding(.vertical, 8)
+        .onChange(of: enabled) { reschedule() }
+        .onChange(of: hour) { reschedule() }
+        .onChange(of: minute) { reschedule() }
+        .onChange(of: weekdaysRaw) { reschedule() }
+    }
+
+    private func reschedule() {
+        let reading = library.books(in: .reading).map(\.title)
+        let streak = Activity.currentStreak(Activity.daily(books: library.books, sessions: library.sessions))
+        Task {
+            let ok = await Reminders.schedule(enabled: enabled, hour: hour, minute: minute, weekdays: weekdays,
+                                              currentlyReading: reading, streak: streak)
+            status = !enabled ? "Reminders are off." : ok ? "Scheduled on \(weekdays.count) day\(weekdays.count == 1 ? "" : "s") a week." : "Notifications are blocked. Allow Folio in System Settings › Notifications."
+        }
     }
 }
 

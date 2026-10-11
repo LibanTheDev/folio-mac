@@ -28,7 +28,26 @@ struct ContentView: View {
                 }
             }
         }
+        .overlay(alignment: .top) {
+            if app.paletteShown {
+                ZStack(alignment: .top) {
+                    Color.black.opacity(0.12)
+                        .ignoresSafeArea()
+                        .onTapGesture { app.paletteShown = false }
+                    CommandPalette()
+                        .padding(.top, 90)
+                        .transition(.opacity.combined(with: .scale(scale: 0.97, anchor: .top)))
+                }
+            }
+        }
+        .motion(Motion.gentle, value: app.paletteShown)
         .background(WindowConfigurator())
+        .dropDestination(for: URL.self) { urls, _ in
+            // Drop a Goodreads export anywhere on the window to import it.
+            guard let csv = urls.first(where: { $0.pathExtension.lowercased() == "csv" }) else { return false }
+            library.importGoodreads(from: csv)
+            return true
+        }
         .foregroundStyle(DS.textPrimary)
         .tint(DS.accent)
         .ignoresSafeArea(.container, edges: .top)
@@ -130,6 +149,10 @@ struct TopBar: View {
                 if let session = library.activeSession {
                     SessionPill(session: session)
                 }
+                Button { app.paletteShown = true } label: { Image(systemName: "command") }
+                    .buttonStyle(IconButtonStyle())
+                    .help("Command palette (⌘K)")
+                    .accessibilityLabel("Command palette")
                 if app.selectedBook != nil {
                     Button { app.toggleInspector() } label: { Image(systemName: "sidebar.right") }
                         .buttonStyle(IconButtonStyle(selected: app.inspectorShown))
