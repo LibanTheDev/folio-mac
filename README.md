@@ -1,19 +1,40 @@
 # Folio
 
-A native macOS reading tracker that aims to be a better Goodreads: fast, private, and built for the Mac.
+> Goodreads catalogs what you've read. Folio helps you understand what you've learned.
 
-## Run it
-Double-click `Folio.app`, or rebuild from source with `./build_app.sh` (needs Xcode Command Line Tools, macOS 14+).
+A private, native macOS reading library and personal knowledge system: Goodreads-style tracking, StoryGraph-style analytics, a Readwise-style knowledge vault, and an AI research assistant grounded in your own notes. It's built with SwiftUI and a frosted, native design.
 
-## Why it's better than Goodreads
-- **Half-star ratings** (finally).
-- **Did Not Finish** shelf, built in.
-- **One-click Goodreads import**: My Books → Import and export → Export Library, then File → Import Goodreads Library (⇧⌘I). It keeps your ratings, shelves (as tags), reviews, dates, read counts and private notes. Covers and descriptions are filled in automatically.
-- **Your data stays yours**: everything lives in `~/Library/Application Support/Folio/library.json`. No account, ads, or feed. File → Export (⇧⌘E) writes a Goodreads-compatible CSV.
-- **Progress tracking**: page logging, a "days left at your pace" estimate, and a daily reading streak.
-- **Notes & quotes** per book, with page numbers.
-- **Stats**: yearly goal with an ahead/behind pace check, books per month, rating distribution, highlights, and top authors.
-- **Re-reads**: start a re-read and the read count is tracked.
-- **Native Mac UI**: warm "paper" design (with a Night theme under View → Appearance), a kanban board you can drag books across, a cover grid and a sortable table, an inspector panel with collapsible sections and "Books by this author", custom shelves, quick filters, and keyboard shortcuts (⌘N add book, ⌘1–4 pages, ⌘F search, ⌥⌘I inspector).
+## Build & run
 
-Book data and covers come from [Open Library](https://openlibrary.org) (free, no API key).
+Requires macOS 14+ and the Xcode Command Line Tools.
+
+```bash
+./build_app.sh        # builds Folio.app (release), icon included, ad-hoc signed
+open Folio.app
+swift test            # 60 tests (Swift Testing)
+FOLIO_NETWORK_TESTS=1 swift test --filter NetworkTests   # optional live Open Library checks
+```
+
+Your data lives in `~/Library/Application Support/Folio/library.json`, with daily backups in `Backups/`. To try Folio against a throwaway library, set `FOLIO_DATA_DIR`:
+
+```bash
+open -n --env FOLIO_DATA_DIR=/tmp/folio-demo Folio.app
+```
+
+## What's inside
+
+- **Library:** resizable cover gallery, kanban board (drag between statuses) and a sortable list. Multi-facet filters. Collections and rule-based smart shelves. Tags. Full book pages with reread history, editions, related books and finish forecasts.
+- **Home:** a live dashboard with data-backed stats, reading sessions, a drag-to-reorder Up Next queue, recent knowledge and an activity heatmap.
+- **Insights:** pace, consistency, streaks, monthly charts, genres and subjects, completion rate, a full-year heatmap, and finish predictions with uncertainty ranges.
+- **Knowledge:** highlights, quotes, reflections, lessons, mental models and questions, with a Markdown editor, autosave, tags and note-to-note connections. Includes an interactive intellectual map.
+- **Search:** keyword plus on-device semantic search (Apple NaturalLanguage) across books and notes; every result links to its source.
+- **Ask Folio:** grounded answers about what you've learned. Citations and quotes are verified against your notes, and your notes, book information and general AI knowledge are clearly separated.
+- **Discover:** AI recommendations, each verified against Open Library before it's shown; Open Library browsing otherwise.
+- **Mac-native:** ⌘K command palette, keyboard shortcuts, drag and drop, reading reminders, light and dark appearance, Reduce Motion support and accessibility labels.
+- **Your data:** Goodreads CSV import (drop the file on the window) and export, a full JSON backup and restore, Markdown notes export (Obsidian-friendly), sessions CSV, and optional daily iCloud Drive backups.
+
+## Privacy & AI
+
+AI is **off by default**. When you turn it on (Settings → AI), you choose the provider: Anthropic Claude, or any OpenAI-compatible server such as a local Ollama or LM Studio. Keys are stored in the macOS Keychain. Separate switches control whether library metadata and notes may be sent. Only the passages relevant to each question are sent, never your whole vault. Search, semantic matching, analytics and the knowledge map always run on your Mac.
+
+See [FOLIO_ROADMAP.md](FOLIO_ROADMAP.md) for the architecture, milestone log, sync evaluation and known limitations.

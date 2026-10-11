@@ -47,7 +47,7 @@ Status legend: ✅ done · 🚧 in progress · ⏳ planned · ⛔ blocked (needs
 | 7 | AI-powered discovery | ✅ | see log |
 | 8 | Ask Folio and knowledge graph | ✅ | see log |
 | 9 | Command palette, notifications, backups/sync, export | ✅ | see log |
-| 10 | Final QA | ⏳ | |
+| 10 | Final QA | ✅ | see log |
 
 ## 4. Known constraints
 
@@ -131,6 +131,27 @@ Updated at each milestone below.
 - **Offline-first:** library, tracking, notes, search (including semantic), analytics, map and the evidence view need no network. Open Library and AI calls degrade to clear messages, and covers fall back to generated placeholders.
 - Keyboard: ⌘1–6 pages, ⌘K palette, ⌘F search, ⌘N add book, ⇧⌘N collection, ⌥⌘N smart shelf, ⌥⌘I inspector, ⌘[ back from a book page, ⌘B/⌘I in the note editor, ⌘↩ submit in Discover and Ask.
 - Tests: Markdown export, sessions CSV escaping, iCloud backup daily write and pruning, reminder triggers and copy, drag payload, and restore safety backup.
+
+### Milestone 10: Quality assurance
+| Check | Result |
+|---|---|
+| Release build (`swift build -c release`, `build_app.sh`) | ✅ 0 errors, **0 warnings** |
+| Type checking / lint | ✅ The Swift 6.1 compiler is the type checker. `swift format lint` (config in `.swift-format`) reports only whitespace/layout differences and no semantic findings. A mass reformat was intentionally not applied to keep history readable. |
+| Tests | ✅ **60 passing** (Swift Testing), plus an opt-in live Open Library suite that passes |
+| Persistence & migrations | ✅ v1 → v2 migration with pre-migration backup (tested and seen in the app). Tolerant decoding. An unreadable file is never overwritten. Fractional-second dates round-trip. Restore makes a safety backup. |
+| Goodreads data integrity | ✅ CSV → merge → save → reload test checks every imported field. Re-import keeps Folio-only data. Imports never create sessions or activity. |
+| Navigation | ✅ Every page, the detail page, the inspector, sheets, the palette and Settings were driven in the running app |
+| Light & dark | ✅ Both checked visually (gallery, board, list, home, insights, knowledge, map, settings) |
+| Accessibility & contrast | ✅ Text tokens re-stepped after measuring: all text colours and the accent/status colours used as text are now **≥ 4.5:1** on canvas and cards in both appearances (tertiary light was 2.7:1, accent 4.0:1). The primary button gradient now keeps white text ≥ 4.5:1. Charts use a CVD-validated palette. Reduce Motion is respected. Accessibility labels are on icon-only controls, the heatmap, the map and the palette. |
+| UI glitches found & fixed during QA | Fractional count axes; uneven stat tiles; narrow heatmap; random default note type; map tap not registering; search matching filler words; first progress update over-crediting one day; subtitle false negatives in verification; pasted page numbers with newlines; "other 1 books" copy |
+| Placeholder buttons | ✅ None. Every button performs a real action (scanned for empty actions and TODOs). |
+| Secrets & private data | ✅ The staged tree was scanned for keys and tokens; `.gitignore` excludes `.env`, keys, `library.json`, SQLite and build output. The test fixture contains only synthetic demo data. |
+
+**Known limitations**
+- AI features (recommendations, Ask Folio synthesis) were not run against a live model in this environment: there was no API key and no local model server. Response parsing, validation and grounding are unit-tested against the documented response shapes.
+- Native drag sessions can't be synthesized by the automation used for GUI checks. Drop handling is code-reviewed and uses standard SwiftUI `Transferable` APIs; please verify by hand.
+- Live multi-device sync needs Apple Developer signing (see §6). Daily iCloud Drive backups are available now.
+- Notifications need the user's permission the first time reminders are enabled. They were not triggered during QA, to avoid prompting on this Mac.
 
 ## 6. Sync evaluation
 

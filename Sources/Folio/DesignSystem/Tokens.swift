@@ -36,22 +36,24 @@ enum DS {
     static let highlight = Color.dynamic(light: 0xFFFFFF, dark: 0xFFFFFF, lightAlpha: 0.85, darkAlpha: 0.13)
 
     // MARK: Text
+    // Contrast (WCAG): primary ≥ 12:1, secondary ≥ 6:1, tertiary ≥ 4.5:1 on canvas and cards in both appearances.
     static let textPrimary = Color.dynamic(light: 0x1C1F24, dark: 0xE8EBF0)
-    static let textSecondary = Color.dynamic(light: 0x5A616C, dark: 0xA2A9B4)
-    static let textTertiary = Color.dynamic(light: 0x8E95A0, dark: 0x6C737E)
+    static let textSecondary = Color.dynamic(light: 0x4D545F, dark: 0xA2A9B4)
+    static let textTertiary = Color.dynamic(light: 0x687079, dark: 0x8A919C)
 
     // MARK: Accent
-    static let accent = Color.dynamic(light: 0x3A78D0, dark: 0x86B4EE)
-    static let accentSecondary = Color.dynamic(light: 0x6FA2E6, dark: 0x5C8FD6)
+    // Accent and status colours are used as small text, so each clears 4.5:1 on canvas and cards.
+    static let accent = Color.dynamic(light: 0x2C68C2, dark: 0x86B4EE)
+    static let accentSecondary = Color.dynamic(light: 0x3B76CC, dark: 0x5C8FD6)
     static let onAccent = Color.dynamic(light: 0xFFFFFF, dark: 0x0D141F)
-    static let selection = Color.dynamic(light: 0x3A78D0, dark: 0x86B4EE, lightAlpha: 0.13, darkAlpha: 0.18)
-    static let favorite = Color.dynamic(light: 0xC9506E, dark: 0xEE8FA6)
+    static let selection = Color.dynamic(light: 0x2C68C2, dark: 0x86B4EE, lightAlpha: 0.12, darkAlpha: 0.18)
+    static let favorite = Color.dynamic(light: 0xAF3D5C, dark: 0xEE8FA6)
 
     // MARK: Semantic status
-    static let statusWant = Color.dynamic(light: 0x5B6B86, dark: 0xA3B4D0)
-    static let statusReading = Color.dynamic(light: 0xB7791F, dark: 0xE8B25E)
-    static let statusRead = Color.dynamic(light: 0x3F8A62, dark: 0x83C9A0)
-    static let statusDNF = Color.dynamic(light: 0xA65454, dark: 0xE09090)
+    static let statusWant = Color.dynamic(light: 0x55657F, dark: 0xA3B4D0)
+    static let statusReading = Color.dynamic(light: 0x94600F, dark: 0xE8B25E)
+    static let statusRead = Color.dynamic(light: 0x2E7350, dark: 0x83C9A0)
+    static let statusDNF = Color.dynamic(light: 0x9A4848, dark: 0xE09090)
 
     // MARK: Data visualization
     /// Categorical series, assigned in this fixed order (validated for CVD separation in both modes).

@@ -41,3 +41,39 @@ import Testing
         #expect(again[0].review == books[0].review)
     }
 }
+
+@MainActor @Suite struct GoodreadsIntegrityTests {
+    @Test func importSurvivesSaveAndReload() throws {
+        let csv = #"""
+        Book Id,Title,Author,Author l-f,Additional Authors,ISBN,ISBN13,My Rating,Average Rating,Publisher,Binding,Number of Pages,Year Published,Original Publication Year,Date Read,Date Added,Bookshelves,Bookshelves with positions,Exclusive Shelf,My Review,Spoiler,Private Notes,Read Count,Owned Copies
+        1,"Shoe Dog: A Memoir",Phil Knight,"Knight, Phil",,"=""1501135910""","=""9781501135910""",5,4.5,Scribner,Hardcover,386,2016,2016,2021/07/04,2021/06/01,"business, memoir",,read,"Loved the ""Blue Ribbon"" years.<br/>Second line.",,Re-read chapter 3,2,1
+        2,Dune,Frank Herbert,"Herbert, Frank",,,"=""9780441172719""",0,4.3,Ace,Paperback,617,1990,1965,,2024/03/03,to-read,,to-read,,,,0,0
+        """#
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("folio-gr-\(UUID())")
+        let lib = Library(directory: dir, autosave: false)
+        let summary = lib.merge(imported: try GoodreadsCSV.parse(csv))
+        #expect(summary == .init(added: 2, updated: 0))
+        lib.save()
+
+        let reloaded = Library(directory: dir, autosave: false)
+        #expect(reloaded.loadError == nil)
+        #expect(reloaded.books.count == 2)
+        let shoe = try #require(reloaded.books.first { $0.title == "Shoe Dog: A Memoir" })
+        #expect(shoe.isbn == "9781501135910")
+        #expect(shoe.rating == 5)
+        #expect(shoe.status == .read)
+        #expect(shoe.tags == ["business", "memoir"])
+        #expect(shoe.review == "Loved the \"Blue Ribbon\" years.\nSecond line.")
+        #expect(shoe.notes.map(\.text) == ["Re-read chapter 3"])
+        #expect(shoe.readCount == 2)
+        #expect(shoe.pageCount == 386 && shoe.currentPage == 386)
+        let f = DateFormatter(); f.dateFormat = "yyyy/MM/dd"
+        #expect(shoe.dateFinished == f.date(from: "2021/07/04"))
+        #expect(shoe.dateAdded == f.date(from: "2021/06/01"))
+        let dune = try #require(reloaded.books.first { $0.title == "Dune" })
+        #expect(dune.status == .wantToRead && dune.rating == nil && dune.publishYear == 1965)
+        // Imports never fabricate reading activity.
+        #expect(reloaded.sessions.isEmpty)
+        #expect(reloaded.books.allSatisfy { $0.progressLog.isEmpty })
+    }
+}
