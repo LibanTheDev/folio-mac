@@ -17,8 +17,8 @@ struct HomeView: View {
                         StreakCard()
                     }
                     currentlyReading
-                    shelfRow(title: "Up Next", books: Array(library.books(in: .wantToRead).sorted { $0.dateAdded > $1.dateAdded }.prefix(10)), more: .shelf(.wantToRead))
-                    shelfRow(title: "Recently Finished", books: Array(library.books(in: .read).sorted { $0.finishedValue > $1.finishedValue }.prefix(10)), more: .shelf(.read))
+                    shelfRow(title: "Up Next", books: Array(library.books(in: .wantToRead).sorted { $0.dateAdded > $1.dateAdded }.prefix(10)), more: .status(.wantToRead))
+                    shelfRow(title: "Recently Finished", books: Array(library.books(in: .read).sorted { $0.finishedValue > $1.finishedValue }.prefix(10)), more: .status(.read))
                 }
             }
             .padding(.horizontal, 28)

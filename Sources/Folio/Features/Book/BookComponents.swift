@@ -42,9 +42,9 @@ struct CoverView: View {
 }
 
 extension CoverView {
-    init(book: Book, size: String = "M") {
+    init(book: Book, size: String = "M", cornerRadius: CGFloat = 3) {
         let sizes = size == "L" ? ["M", "L"] : [size]
-        self.init(title: book.title, author: book.authorLine, urls: sizes.compactMap { book.coverURL(size: $0) })
+        self.init(title: book.title, author: book.authorLine, urls: sizes.compactMap { book.coverURL(size: $0) }, cornerRadius: cornerRadius)
     }
 }
 
@@ -187,18 +187,6 @@ struct StatusBadge: View {
             .background(status.tint.opacity(0.13), in: Capsule())
             .overlay(Capsule().strokeBorder(status.tint.opacity(0.18)))
             .foregroundStyle(status.tint)
-    }
-}
-
-// Opening a book (in the inspector) from anywhere.
-private struct OpenBookKey: EnvironmentKey {
-    static let defaultValue: (UUID) -> Void = { _ in }
-}
-
-extension EnvironmentValues {
-    var openBook: (UUID) -> Void {
-        get { self[OpenBookKey.self] }
-        set { self[OpenBookKey.self] = newValue }
     }
 }
 

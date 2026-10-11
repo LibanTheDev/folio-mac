@@ -34,6 +34,22 @@ struct FolioApp: App {
             CommandGroup(replacing: .newItem) {
                 Button("Add a Book…") { library.presentAddBook() }
                     .keyboardShortcut("n")
+                Button("New Collection…") { app.editingShelf = Shelf(name: "", kind: .manual) }
+                    .keyboardShortcut("n", modifiers: [.command, .shift])
+                Button("New Smart Shelf…") {
+                    app.editingShelf = Shelf(name: "", icon: "sparkles", kind: .smart, rules: [ShelfRule(.rating, .atLeast, "4")])
+                }
+                .keyboardShortcut("n", modifiers: [.command, .option])
+                Menu("New Shelf from Template") {
+                    ForEach(Shelf.templates(year: library.currentYear), id: \.name) { t in
+                        Button(t.name) {
+                            var s = t
+                            s.id = UUID()
+                            library.addShelf(s)
+                            app.show(.shelf(s.id))
+                        }
+                    }
+                }
             }
             CommandGroup(after: .importExport) {
                 Button("Import Goodreads Library…") { library.importGoodreads() }

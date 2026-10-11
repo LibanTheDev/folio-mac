@@ -40,7 +40,7 @@ Status legend: ✅ done · 🚧 in progress · ⏳ planned · ⛔ blocked (needs
 | 0 | Private GitHub repo and baseline | ✅ | `4ec0bc7` |
 | 1 | Audit and roadmap | ✅ | (this file) |
 | 2 | Frosted macOS design system | ✅ | see log |
-| 3 | Library gallery, smart shelves, book detail, rereads | ⏳ | |
+| 3 | Library gallery, smart shelves, book detail, rereads | ✅ | see log |
 | 4 | Live home dashboard | ⏳ | |
 | 5 | Reading sessions and analytics | ⏳ | |
 | 6 | Personal knowledge vault and search | ⏳ | |
@@ -65,6 +65,16 @@ Updated at each milestone below.
 - App shell: floating frosted sidebar and inspector panels, a translucent content area, a centered glass navigation capsule, and a draggable titlebar area.
 - Appearance follows the system by default (Light / Dark override in View → Appearance).
 - Verified visually in light and dark mode via the running app.
+
+### Milestone 3: Library, shelves, book pages
+- **Schema v2** (`Model/`): `version` field, tolerant per-field decoding (`Codable+Defaults`), fractional-second ISO-8601 dates, pre-migration backup, daily rolling backups (14 kept), and an unreadable file is never overwritten (moved aside, saving disabled). Tested with the v1 fixture.
+- **Rereads:** `ReadThrough` history. Starting a reread, or moving a finished book back to Reading, archives the previous pass with its dates and rating.
+- **Typed knowledge notes:** highlight, quote, reflection, chapter note, lesson, mental model, takeaway, question. Notes carry page, chapter, tags and links. v1 quote/note values migrate automatically.
+- **Collections and smart shelves:** manual ordered collections, rule-based smart shelves (13 fields, all/any matching), 7 templates, create/edit/rename/reorder (drag or menu)/delete, and drop books onto collections in the sidebar. Tags can be renamed and deleted.
+- **Gallery:** resizable cover grid (slider), board, and a sortable list with publication year, completion and added-date columns. Multi-facet filter popover (status, rating, genre, author, tags, shelves, publication year, pages, date added, year completed) with removable filter chips. Shared context menu across views.
+- **Book detail page:** hero with cover, genres, authors (click to filter), status, rating, sessions and re-read actions. Progress with finish forecast. About. Highlights & Notes grouped by type. Mental Models. Review. Editable details (ISBN, edition, format, publisher). Reading history. Tags and collections. Related books (library ranking plus more by the author from Open Library).
+- Goodreads re-import now merges: it refreshes Goodreads-owned fields and keeps Folio-only data.
+- Tests: 24 (persistence and migration, rereads, merge, queue, deletion cleanup, tags, smart-shelf rules, filters, related books, forecast, streaks, 5,000-book performance).
 
 ## 6. Sync evaluation
 

@@ -58,12 +58,27 @@ struct ProgressEntry: Codable, Hashable, Identifiable {
     var page: Int
 }
 
-struct BookNote: Codable, Hashable, Identifiable {
+/// One completed (or abandoned) pass through a book. Rereads append here instead of overwriting.
+struct ReadThrough: Codable, Hashable, Identifiable {
+    enum Outcome: String, Codable { case finished, abandoned }
     var id = UUID()
-    var created = Date()
-    var text: String
-    var page: Int?
-    var isQuote: Bool
+    var started: Date?
+    var finished: Date?
+    var outcome: Outcome = .finished
+    var rating: Double?
+
+    init(id: UUID = UUID(), started: Date?, finished: Date?, outcome: Outcome = .finished, rating: Double? = nil) {
+        self.id = id; self.started = started; self.finished = finished; self.outcome = outcome; self.rating = rating
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = c.value(.id, UUID())
+        started = c.value(.started, nil)
+        finished = c.value(.finished, nil)
+        outcome = c.value(.outcome, .finished)
+        rating = c.value(.rating, nil)
+    }
 }
 
 struct Book: Codable, Hashable, Identifiable {
@@ -76,6 +91,9 @@ struct Book: Codable, Hashable, Identifiable {
     var pageCount: Int?
     var publishYear: Int?
     var publisher: String?
+    var edition: String?
+    var format: String?
+    var language: String?
     var subjects: [String] = []
     var synopsis: String?
 
@@ -85,12 +103,73 @@ struct Book: Codable, Hashable, Identifiable {
     var tags: [String] = []
     var favorite = false
     var dateAdded = Date()
+    var updatedAt = Date()
+    /// Dates of the current (most recent) read-through.
     var dateStarted: Date?
     var dateFinished: Date?
     var currentPage = 0
     var progressLog: [ProgressEntry] = []
     var notes: [BookNote] = []
     var readCount = 0
+    /// Earlier read-throughs, oldest first.
+    var history: [ReadThrough] = []
+    /// Position in the Up Next queue (lower comes first). Nil means unordered.
+    var queueRank: Double?
+
+    init(id: UUID = UUID(), title: String, authors: [String], isbn: String? = nil, olWorkKey: String? = nil,
+         coverID: Int? = nil, pageCount: Int? = nil, publishYear: Int? = nil, publisher: String? = nil,
+         subjects: [String] = []) {
+        self.id = id; self.title = title; self.authors = authors; self.isbn = isbn; self.olWorkKey = olWorkKey
+        self.coverID = coverID; self.pageCount = pageCount; self.publishYear = publishYear; self.publisher = publisher
+        self.subjects = subjects
+    }
+
+    /// Tolerant decoding: every field except the title has a default, so older or partially
+    /// damaged files still load instead of failing as a whole.
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = c.value(.id, UUID())
+        title = try c.decode(String.self, forKey: .title)
+        authors = c.value(.authors, [])
+        isbn = c.value(.isbn, nil)
+        olWorkKey = c.value(.olWorkKey, nil)
+        coverID = c.value(.coverID, nil)
+        pageCount = c.value(.pageCount, nil)
+        publishYear = c.value(.publishYear, nil)
+        publisher = c.value(.publisher, nil)
+        edition = c.value(.edition, nil)
+        format = c.value(.format, nil)
+        language = c.value(.language, nil)
+        subjects = c.value(.subjects, [])
+        synopsis = c.value(.synopsis, nil)
+        status = c.value(.status, .wantToRead)
+        rating = c.value(.rating, nil)
+        review = c.value(.review, "")
+        tags = c.value(.tags, [])
+        favorite = c.value(.favorite, false)
+        dateAdded = c.value(.dateAdded, Date())
+        updatedAt = c.value(.updatedAt, dateAdded)
+        dateStarted = c.value(.dateStarted, nil)
+        dateFinished = c.value(.dateFinished, nil)
+        currentPage = c.value(.currentPage, 0)
+        progressLog = c.value(.progressLog, [])
+        notes = c.value(.notes, [])
+        readCount = c.value(.readCount, 0)
+        history = c.value(.history, [])
+        queueRank = c.value(.queueRank, nil)
+    }
+
+    /// All read-throughs including the current one, oldest first.
+    var allReadThroughs: [ReadThrough] {
+        var all = history
+        if dateStarted != nil || dateFinished != nil {
+            all.append(ReadThrough(started: dateStarted, finished: status == .read ? dateFinished : nil,
+                                   outcome: status == .dnf ? .abandoned : .finished, rating: rating))
+        }
+        return all
+    }
+
+    var genres: [String] { Self.cleanLabels(subjects) }
 
     var authorLine: String { authors.isEmpty ? "Unknown author" : authors.joined(separator: ", ") }
 
@@ -154,12 +233,6 @@ extension Book {
             subjects: Array((doc.subject ?? []).prefix(8))
         )
     }
-}
-
-struct LibraryFile: Codable {
-    var books: [Book]
-    var goals: [Int: Int]
-    var shelves: [String]?
 }
 
 /// Stable color derived from a string (Swift's hashValue is randomized per launch).
