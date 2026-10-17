@@ -200,11 +200,15 @@ private struct ReadingCard: View {
                 HStack(alignment: .firstTextBaseline) {
                     Text("\(Int(book.progress * 100))%")
                         .font(.system(size: 15, weight: .semibold, design: .rounded).monospacedDigit())
-                    if let left = forecast.pagesRemaining {
+                    if book.progressProvenance == .loggedInFolio, let left = forecast.pagesRemaining {
                         Text("\(left) pages left").font(DS.Text.caption).foregroundStyle(DS.textSecondary)
                     }
                     Spacer()
-                    Text(etaText(forecast)).font(DS.Text.caption).foregroundStyle(DS.textTertiary)
+                    if book.progressProvenance == .loggedInFolio {
+                        Text(etaText(forecast)).font(DS.Text.caption).foregroundStyle(DS.textTertiary)
+                    } else {
+                        ProgressSourceLabel(book: book).font(DS.Text.caption).lineLimit(1)
+                    }
                 }
                 ProgressBar(value: book.progress, tint: DS.statusReading)
                 HStack(spacing: 6) {

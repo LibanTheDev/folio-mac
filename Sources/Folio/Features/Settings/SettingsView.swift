@@ -5,10 +5,11 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             GeneralSettings().tabItem { Label("General", systemImage: "gearshape") }
+            ConnectedLibrariesSettings().tabItem { Label("Connected Libraries", systemImage: "books.vertical") }
             RemindersSettings().tabItem { Label("Reminders", systemImage: "bell") }
             AISettingsView().tabItem { Label("AI", systemImage: "sparkles") }
         }
-        .frame(width: 580, height: 640)
+        .frame(width: 620, height: 660)
         .tint(DS.accent)
     }
 }

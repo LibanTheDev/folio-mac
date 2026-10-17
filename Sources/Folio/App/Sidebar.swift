@@ -38,6 +38,10 @@ struct SidebarView: View {
                         scopeRow(status.title, status.symbol, .status(status), count: library.books(in: status).count)
                     }
                     scopeRow("Favourites", "heart", .favorites, count: library.books.filter(\.favorite).count)
+                    let synced = library.books.filter { $0.appleBooksID != nil }.count
+                    if synced > 0 {
+                        scopeRow("Apple Books", "apple.logo", .appleBooks, count: synced)
+                    }
 
                     shelvesSection
                     tagsSection

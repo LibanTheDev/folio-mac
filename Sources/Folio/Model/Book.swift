@@ -115,6 +115,13 @@ struct Book: Codable, Hashable, Identifiable {
     var history: [ReadThrough] = []
     /// Position in the Up Next queue (lower comes first). Nil means unordered.
     var queueRank: Double?
+    /// Apple Books asset ID (`ZASSETID`) when this book is linked to Apple Books.
+    var appleBooksID: String?
+    /// Progress reported by an external app. Kept separate from Folio's own page log so the UI can say
+    /// exactly where a number came from.
+    var externalProgress: ExternalProgress?
+    /// An EPUB Folio downloaded from an open-licence catalog.
+    var ebook: LocalEbook?
 
     init(id: UUID = UUID(), title: String, authors: [String], isbn: String? = nil, olWorkKey: String? = nil,
          coverID: Int? = nil, pageCount: Int? = nil, publishYear: Int? = nil, publisher: String? = nil,
@@ -157,6 +164,9 @@ struct Book: Codable, Hashable, Identifiable {
         readCount = c.value(.readCount, 0)
         history = c.value(.history, [])
         queueRank = c.value(.queueRank, nil)
+        appleBooksID = c.value(.appleBooksID, nil)
+        externalProgress = c.value(.externalProgress, nil)
+        ebook = c.value(.ebook, nil)
     }
 
     /// All read-throughs including the current one, oldest first.
@@ -174,8 +184,20 @@ struct Book: Codable, Hashable, Identifiable {
     var authorLine: String { authors.isEmpty ? "Unknown author" : authors.joined(separator: ", ") }
 
     var progress: Double {
-        guard let pages = pageCount, pages > 0 else { return status == .read ? 1 : 0 }
-        return min(1, Double(currentPage) / Double(pages))
+        if let pages = pageCount, pages > 0, currentPage > 0 {
+            return min(1, Double(currentPage) / Double(pages))
+        }
+        if let e = externalProgress { return e.finished ? 1 : min(1, max(0, e.fraction)) }
+        return status == .read ? 1 : 0
+    }
+
+    /// Where the displayed progress comes from.
+    enum ProgressProvenance: Equatable { case loggedInFolio, confirmedByAppleBooks, unknown }
+
+    var progressProvenance: ProgressProvenance {
+        if let pages = pageCount, pages > 0, currentPage > 0 { return .loggedInFolio }
+        if externalProgress != nil { return .confirmedByAppleBooks }
+        return .unknown
     }
 
     /// Short genre-ish labels for cards: user shelves first, then tidy Open Library subjects.

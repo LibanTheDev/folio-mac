@@ -37,6 +37,7 @@ struct LibraryView: View {
         case .status(let s): s.title
         case .tag(let t): "#" + t.replacingOccurrences(of: "-", with: " ")
         case .shelf: currentShelf?.name ?? "Shelf"
+        case .appleBooks: "Apple Books"
         }
     }
 
@@ -44,6 +45,7 @@ struct LibraryView: View {
         switch app.scope {
         case .shelf: currentShelf?.kind == .smart ? "Smart shelf" : "Collection"
         case .tag: "Tag"
+        case .appleBooks: "Synced from Apple Books"
         default: "Library"
         }
     }
@@ -55,6 +57,7 @@ struct LibraryView: View {
         case .status(let s): library.books(in: s)
         case .tag(let t): library.books.filter { $0.tags.contains(t) }
         case .shelf: currentShelf.map { library.books(on: $0) } ?? []
+        case .appleBooks: library.books.filter { $0.appleBooksID != nil }
         }
     }
 
