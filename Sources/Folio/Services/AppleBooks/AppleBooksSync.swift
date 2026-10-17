@@ -69,6 +69,7 @@ final class AppleBooksSync: ObservableObject {
     }
 
     func attach(_ library: Library) {
+        guard self.library !== library else { return }
         self.library = library
         if enabled { start() }
     }

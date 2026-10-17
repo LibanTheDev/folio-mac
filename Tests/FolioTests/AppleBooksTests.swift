@@ -40,6 +40,20 @@ func fileState(_ root: URL) -> [String: String] {
         #expect(!FileManager.default.fileExists(atPath: snaps.path))  // snapshots cleaned up
     }
 
+    @Test func checkpointedWALDatabaseWithoutSidecarFilesReads() throws {
+        // Apple Books' store is WAL-mode; after a checkpoint there may be no -wal/-shm files at all.
+        let root = AppleBooksFixture.make(at: tempDir("ab-ckpt"), assets: AppleBooksFixture.sampleAssets, annotations: AppleBooksFixture.sampleAnnotations)
+        for folder in ["BKLibrary", "AEAnnotation"] {
+            for f in try FileManager.default.contentsOfDirectory(atPath: root.appendingPathComponent(folder).path) where f.hasSuffix("-wal") || f.hasSuffix("-shm") {
+                try FileManager.default.removeItem(at: root.appendingPathComponent(folder).appendingPathComponent(f))
+            }
+        }
+        let before = fileState(root)
+        let r = try AppleBooksReader(documentsURL: root, snapshotRoot: tempDir("ab-snap")).read()
+        #expect(r.books.count == 4 && r.annotations.count == 6)
+        #expect(fileState(root) == before)
+    }
+
     @Test func schemaChangeIsReportedAndNothingRead() {
         let root = AppleBooksFixture.make(at: tempDir("ab-schema"), assets: AppleBooksFixture.sampleAssets, annotations: [],
                                           dropColumn: "ZREADINGPROGRESS")

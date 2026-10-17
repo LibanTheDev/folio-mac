@@ -204,13 +204,15 @@ final class SQLiteSnapshot {
     private var handle: OpaquePointer?
 
     init(path: URL) throws {
-        // Read-only open of Folio's private snapshot copy (SQLite may update the copy's -shm; Apple's files are never opened).
-        let uri = "file:\(path.path.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? path.path)?mode=ro"
-        guard sqlite3_open_v2(uri, &handle, SQLITE_OPEN_READONLY | SQLITE_OPEN_URI, nil) == SQLITE_OK else {
+        // This is Folio's private snapshot copy; Apple's files are never opened. It is opened read-write because
+        // a read-only connection can't open a WAL-mode database whose -shm file is absent (e.g. after Apple Books
+        // checkpoints), and `query_only` guarantees no statement can modify it.
+        guard sqlite3_open_v2(path.path, &handle, SQLITE_OPEN_READWRITE, nil) == SQLITE_OK else {
             let message = handle.map { String(cString: sqlite3_errmsg($0)) } ?? "open failed"
             sqlite3_close(handle)
             throw AppleBooksError.unreadable(message)
         }
+        sqlite3_exec(handle, "PRAGMA query_only = 1;", nil, nil, nil)
     }
 
     deinit { sqlite3_close(handle) }
@@ -218,11 +220,16 @@ final class SQLiteSnapshot {
     func use<T>(_ body: (SQLiteSnapshot) throws -> T) throws -> T { try body(self) }
 
     func columns(of table: String) -> Set<String> {
-        (try? rows("SELECT name FROM pragma_table_info('\(table)')") { $0.string(0) }).map(Set.init) ?? []
+        (try? tableColumns(table)) ?? []
+    }
+
+    /// Throws on read errors so they're never mistaken for a schema change.
+    func tableColumns(_ table: String) throws -> Set<String> {
+        Set(try rows("SELECT name FROM pragma_table_info('\(table)')") { $0.string(0) })
     }
 
     func require(table: String, columns required: [String]) throws {
-        let have = columns(of: table)
+        let have = try tableColumns(table)
         guard !have.isEmpty else { throw AppleBooksError.schemaUnsupported(missing: [table]) }
         let missing = required.filter { !have.contains($0) }
         if !missing.isEmpty { throw AppleBooksError.schemaUnsupported(missing: missing) }

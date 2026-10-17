@@ -16,9 +16,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 @main
 struct FolioApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
-    @StateObject private var library = Library()
+    @StateObject private var library: Library
     @StateObject private var app = AppState()
-    @StateObject private var appleBooks = AppleBooksSync()
+    @StateObject private var appleBooks: AppleBooksSync
+
+    init() {
+        let library = Library()
+        let sync = AppleBooksSync()
+        _library = StateObject(wrappedValue: library)
+        _appleBooks = StateObject(wrappedValue: sync)
+        // Start syncing at launch, independent of any window (a restored window may start minimized).
+        DispatchQueue.main.async { sync.attach(library) }
+    }
     @AppStorage("appearance") private var appearance = Appearance.system
 
     var body: some Scene {
@@ -27,7 +36,6 @@ struct FolioApp: App {
                 .environmentObject(library)
                 .environmentObject(app)
                 .environmentObject(appleBooks)
-                .onAppear { appleBooks.attach(library) }
                 .frame(minWidth: 1080, minHeight: 680)
                 .preferredColorScheme(appearance.colorScheme)
         }
