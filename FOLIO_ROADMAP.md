@@ -48,6 +48,9 @@ Status legend: ✅ done · 🚧 in progress · ⏳ planned · ⛔ blocked (needs
 | 8 | Ask Folio and knowledge graph | ✅ | see log |
 | 9 | Command palette, notifications, backups/sync, export | ✅ | see log |
 | 10 | Final QA | ✅ | see log |
+| 11 | Read-only Apple Books synchronization | ✅ | see log |
+| 12 | Find EPUB: open-licence catalogs and download manager | ✅ | see log |
+| 13 | README showcase and documentation | ✅ | see log |
 
 ## 4. Known constraints
 
@@ -152,6 +155,28 @@ Updated at each milestone below.
 - Native drag sessions can't be synthesized by the automation used for GUI checks. Drop handling is code-reviewed and uses standard SwiftUI `Transferable` APIs; please verify by hand.
 - Live multi-device sync needs Apple Developer signing (see §6). Daily iCloud Drive backups are available now.
 - Notifications need the user's permission the first time reminders are enabled. They were not triggered during QA, to avoid prompting on this Mac.
+
+### Milestone 11: Apple Books synchronization (read-only)
+Full details are in [docs/apple-books-sync.md](docs/apple-books-sync.md).
+- **Verified on real data** (Apple Books 7.6, build 6387, macOS 15.7), merged into a throwaway library: 96 books imported; 34 confirmed progress values; 1 finished book with its real date; 8 highlights imported (7 with chapter titles); 7 highlights skipped because their books are no longer in Apple Books; the second sync was idempotent. Checksums show Apple's files unchanged during the read.
+- Reads **snapshot copies** of `BKLibrary` and `AEAnnotation` (database plus WAL and SHM files), with schema validation and per-field fallbacks. A missing or changed store is reported and nothing is modified.
+- Forward-only merge: dedupe by asset ID, then title and author; fill only missing metadata; never change ratings, reviews, collections or user notes; never move status backwards; never invent start dates or sessions.
+- Highlights carry source attribution. Edited or tagged imports are never overwritten or removed.
+- Event-driven sync (watchers on Apple's folders and WAL files, 3-second debounce, about 4 seconds end to end in testing), plus a 5-minute timer and a sync on app activation. Sync starts at launch.
+- Connected Libraries tab in Settings, an Apple Books shelf, and progress provenance labels ("Confirmed by Apple Books", "Logged in Folio", "Progress unknown").
+- Bugs found and fixed while verifying: the sync didn't start when the window was restored minimized; a checkpointed WAL store with no `-shm` file was misreported as an unsupported schema.
+
+### Milestone 12: Find EPUB
+- A **Find EPUB** action inside the existing Discover book modal (no separate screen). A provider-agnostic `EbookProvider` interface with **Standard Ebooks** (public Atom feed) and **Project Gutenberg** (official OPDS catalog). Only works the provider marks as public domain are listed, and its licence text is shown verbatim.
+- Searches by title and author, and by ISBN (resolved through Open Library). Shows format, language and exact file size. Neither catalog states the original publication year, so none is shown.
+- Download manager: progress, up to 3 retries with backoff for transient failures only, cancellation, EPUB validation, SHA-256 duplicate detection, a local `Ebooks/` folder with an index, linking to the library book, Open in Apple Books, and Show in Finder.
+- **Anna's Archive was evaluated and deliberately not integrated:** its collection is predominantly unauthorized copies of copyrighted books, so even a metadata-and-link connector would mainly route users to infringing downloads.
+- Live-verified: *Pride and Prejudice* found in both catalogs with sizes; *Project Hail Mary* (in copyright) returns no results; ISBN lookup works; a real Standard Ebooks download validated. The live test also caught and fixed two bugs: Standard Ebooks needs its `?source=feed` URL (otherwise it serves HTML, which the validator rejected), and Gutendex timed out, so the official Gutenberg OPDS catalog replaced it.
+- Adding a book from any catalog now matches an existing book by title and author, because Open Library often has several work records for one book.
+
+### Milestone 13: README showcase
+- `README.md` rewritten as a product page, using real screenshots captured from the running app with an isolated, clearly labelled demo library (`scripts/make_demo.py`). The hero is composited from those screenshots (`scripts/make_hero.py`).
+- Added `docs/architecture.md`, `docs/apple-books-sync.md` and `docs/development.md`.
 
 ## 6. Sync evaluation
 
