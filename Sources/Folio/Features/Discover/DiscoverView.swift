@@ -167,9 +167,10 @@ struct RemoteBookSheet: View {
     let doc: OLDoc
     @State private var synopsis: String?
     @State private var loadingSynopsis = true
+    @State private var showingEditions = false
 
     var body: some View {
-        let owned = library.contains(workKey: doc.key)
+        let owned = library.existing(matching: Book(from: doc))
         VStack(alignment: .leading, spacing: 0) {
             ScrollView {
                 HStack(alignment: .top, spacing: 24) {
@@ -198,6 +199,12 @@ struct RemoteBookSheet: View {
                     }
                 }
                 .padding(28)
+                if showingEditions {
+                    FindEpubPanel(doc: doc)
+                        .padding(.horizontal, 28)
+                        .padding(.bottom, 24)
+                        .transition(.opacity)
+                }
             }
             Divider()
             HStack {
@@ -205,6 +212,11 @@ struct RemoteBookSheet: View {
                     StatusBadge(status: owned.status)
                     Text("In your library").foregroundStyle(.secondary)
                 }
+                Button { Motion.perform { showingEditions.toggle() } } label: {
+                    Label(showingEditions ? "Hide Editions" : "Find EPUB", systemImage: "arrow.down.doc")
+                }
+                .buttonStyle(GlassButtonStyle())
+                .help("Find free, legal EPUB editions (public domain and openly licensed)")
                 Spacer()
                 Button("Close") { dismiss() }.keyboardShortcut(.cancelAction).buttonStyle(GlassButtonStyle())
                 ForEach([ReadingStatus.read, .reading]) { s in
@@ -217,7 +229,7 @@ struct RemoteBookSheet: View {
             }
             .padding(16)
         }
-        .frame(width: 680, height: 460)
+        .frame(width: showingEditions ? 760 : 680, height: showingEditions ? 680 : 460)
         .background(VisualEffectView(material: .popover, blending: .behindWindow))
         .background(DS.background.opacity(0.5))
         .task {

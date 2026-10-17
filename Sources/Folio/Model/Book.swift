@@ -120,6 +120,8 @@ struct Book: Codable, Hashable, Identifiable {
     /// Progress reported by an external app. Kept separate from Folio's own page log so the UI can say
     /// exactly where a number came from.
     var externalProgress: ExternalProgress?
+    /// An EPUB Folio downloaded from an open-licence catalog.
+    var ebook: LocalEbook?
 
     init(id: UUID = UUID(), title: String, authors: [String], isbn: String? = nil, olWorkKey: String? = nil,
          coverID: Int? = nil, pageCount: Int? = nil, publishYear: Int? = nil, publisher: String? = nil,
@@ -164,6 +166,7 @@ struct Book: Codable, Hashable, Identifiable {
         queueRank = c.value(.queueRank, nil)
         appleBooksID = c.value(.appleBooksID, nil)
         externalProgress = c.value(.externalProgress, nil)
+        ebook = c.value(.ebook, nil)
     }
 
     /// All read-throughs including the current one, oldest first.

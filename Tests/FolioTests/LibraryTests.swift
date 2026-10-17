@@ -214,3 +214,19 @@ import Testing
         #expect(Activity.longestStreak(days, calendar: cal) == 3)
     }
 }
+
+
+@MainActor @Suite struct DuplicateMatchingTests {
+    @Test func addingSameBookFromAnotherCatalogRecordReusesExisting() {
+        let lib = Library(directory: FileManager.default.temporaryDirectory.appendingPathComponent("folio-dup-\(UUID())"), autosave: false)
+        var synced = Book(title: "Pride and Prejudice", authors: ["Jane Austen"], olWorkKey: "/works/OL66554W")
+        synced.status = .reading
+        lib.books = [synced]
+        let id = lib.add(Book(title: "Pride and Prejudice", authors: ["Jane Austen"], olWorkKey: "/works/OL15165350W"), status: .wantToRead)
+        #expect(id == synced.id)
+        #expect(lib.books.count == 1)
+        #expect(lib.books[0].status == .wantToRead || lib.books[0].status == .reading)
+        let other = lib.add(Book(title: "Pride and Prejudice and Zombies", authors: ["Seth Grahame-Smith"]), status: .wantToRead)
+        #expect(other != synced.id && lib.books.count == 2)
+    }
+}

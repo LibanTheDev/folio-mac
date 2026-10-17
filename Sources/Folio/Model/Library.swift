@@ -36,7 +36,7 @@ final class Library: ObservableObject {
         store.dailyBackupIfNeeded()
         if UserDefaults.standard.bool(forKey: "backup.icloud"), loadError == nil,
            let data = try? LibraryStore.encoder().encode(snapshot) {
-            try? CloudBackup.backup(data)
+            _ = try? CloudBackup.backup(data)
         }
 
         Publishers.MergeMany(
@@ -135,6 +135,16 @@ final class Library: ObservableObject {
 
     func contains(workKey: String) -> Book? { books.first { $0.olWorkKey == workKey } }
 
+    /// The library's copy of a book: same Open Library work, or same title and author (catalogs often
+    /// have several records for one book).
+    func existing(matching b: Book) -> Book? {
+        if let key = b.olWorkKey, let hit = contains(workKey: key) { return hit }
+        return books.first { mine in
+            BookMatcher.titlesMatch(mine.title, b.title)
+                && (b.authors.first.map { BookMatcher.authorsMatch(claimed: $0, actual: mine.authors) } ?? mine.authors.isEmpty)
+        }
+    }
+
     func finished(in year: Int) -> [Book] {
         let cal = Calendar.current
         return books.filter { $0.status == .read && $0.dateFinished.map { cal.component(.year, from: $0) == year } == true }
@@ -204,7 +214,7 @@ final class Library: ObservableObject {
 
     @discardableResult
     func add(_ book: Book, status: ReadingStatus) -> UUID {
-        if let key = book.olWorkKey, let existing = contains(workKey: key) {
+        if let existing = existing(matching: book) {
             setStatus(existing.id, status)
             return existing.id
         }

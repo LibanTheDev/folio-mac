@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// Full-page view of a single book.
@@ -242,6 +243,16 @@ private struct BookDetailContent: View {
             row("Format") { TextField("e.g. Hardcover", text: optional($book.format)).textFieldStyle(.plain) }
             row("ISBN") { TextField("—", text: optional($book.isbn)).textFieldStyle(.plain).textSelection(.enabled) }
             row("Added") { Text(book.dateAdded.shortString) }
+            if let ebook = book.ebook, let url = EbookDownloads.shared.url(for: ebook) {
+                row("EPUB") {
+                    HStack(spacing: 6) {
+                        Button("Open in Apple Books") { EbookDownloads.openInAppleBooks(url) }.buttonStyle(GhostButtonStyle())
+                        Button { NSWorkspace.shared.activateFileViewerSelecting([url]) } label: { Image(systemName: "folder") }
+                            .buttonStyle(IconButtonStyle(size: 24)).help("Show in Finder").accessibilityLabel("Show EPUB in Finder")
+                    }
+                    .padding(.leading, -8)
+                }
+            }
         }
         .font(DS.Text.callout)
     }

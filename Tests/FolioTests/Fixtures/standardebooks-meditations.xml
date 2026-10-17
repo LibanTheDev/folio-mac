@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet href="https://standardebooks.org/feeds/atom/style" type="text/xsl"?>
+	<feed xmlns="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/">
+		<id>https://standardebooks.org/feeds/atom/all?query=meditations+aurelius&amp;page=1&amp;per-page=12</id>
+		<link href="https://standardebooks.org/feeds/atom/all?query=meditations+aurelius&amp;page=1&amp;per-page=12" rel="self" type="application/atom+xml"/>
+		<link rel="first" href="https://standardebooks.org/feeds/atom/all?query=meditations+aurelius&amp;page=1&amp;per-page=12" type="application/atom+xml"/>
+						<link rel="last" href="https://standardebooks.org/feeds/atom/all?query=meditations+aurelius&amp;page=1&amp;per-page=12" type="application/atom+xml"/>
+		<link rel="search" href="https://standardebooks.org/opensearch" type="application/opensearchdescription+xml" title="Standard Ebooks"/>
+		<link href="https://standardebooks.org/ebooks/ebooks?query=meditations+aurelius&amp;page=1&amp;per-page=12" rel="alternate" type="application/xhtml+xml"/>
+		<opensearch:totalResults>1</opensearch:totalResults>
+		<opensearch:startIndex>1</opensearch:startIndex>
+		<opensearch:itemsPerPage>12</opensearch:itemsPerPage>
+		<title>Search Results</title>
+		<subtitle>Results for “meditations aurelius”</subtitle>
+		<icon>https://standardebooks.org/images/logo.png</icon>
+		<updated>2026-10-17T13:45:32Z</updated>
+		<author>
+			<name>Standard Ebooks</name>
+			<uri>https://standardebooks.org</uri>
+		</author>
+					<entry>
+	<id>https://standardebooks.org/ebooks/marcus-aurelius/meditations/george-long</id>
+	<title>Meditations</title>
+			<author>
+			<name>Marcus Aurelius</name>
+			<uri>https://standardebooks.org/ebooks/marcus-aurelius</uri>
+		</author>
+		<published>2014-05-25T00:00:00Z</published>
+	<updated>2026-09-07T16:46:00Z</updated>
+	<rights>Public domain in the United States. Users located outside of the United States must check their local laws before using this ebook. Original content released to the public domain via the Creative Commons CC0 1.0 Universal Public Domain Dedication.</rights>
+	<summary type="text">The personal diary of the Roman Emperor, in which he lays out his thoughts and philosophical musings on the Stoic philosophy and way of life.</summary>
+	<content type="html">&lt;p&gt;Roman Emperor &lt;a href=&quot;https://standardebooks.org/ebooks/marcus-aurelius&quot;&gt;Marcus Aurelius Antoninus Augustus&lt;/a&gt; was the model of what we call a philosopher-king. Though his rule was troubled by war and conflict, he remained a thoughtful and even-handed ruler.&lt;/p&gt;
+			&lt;p&gt;&lt;i&gt;Meditations&lt;/i&gt; isn’t a complete book, but rather a collection of his personal diary entries written over a ten-year campaign in Greece. The entries were never meant to be published; instead, they were a reminder to himself of how to remain calm, tranquil, and kind, even in the worst of situations. In them we see the emperor working out how to deal with the everyday problems all of us face: annoying coworkers, difficult family members, the expectations of others, unrealized goals and achievements, and, ultimately, happiness.&lt;/p&gt;
+			&lt;p&gt;The episodic nature of &lt;i&gt;Meditations&lt;/i&gt; makes it hard to follow at times, but in exchange we get a deeply personal window into the life of one of Rome’s most unique emperors, and more importantly, a handbook of thoughtful advice on how to live a tranquil, satisfied, and productive life.&lt;/p&gt;</content>
+			<category scheme="http://purl.org/dc/terms/LCSH" term="Ethics--Early works to 1800"/>
+			<category scheme="http://purl.org/dc/terms/LCSH" term="Stoics--Early works to 1800"/>
+				<category scheme="https://standardebooks.org/vocab/subjects" term="Philosophy"/>
+		<media:thumbnail url="https://standardebooks.org/ebooks/marcus-aurelius/meditations/george-long/downloads/cover-thumbnail.jpg" height="525" width="350"/>
+	<link href="https://standardebooks.org/ebooks/marcus-aurelius/meditations/george-long" rel="alternate" title="This ebook’s page at Standard Ebooks" type="application/xhtml+xml"/>
+			<link href="https://standardebooks.org/ebooks/marcus-aurelius/meditations/george-long/downloads/marcus-aurelius_meditations_george-long.epub?source=feed" length="733307" rel="enclosure" title="Recommended compatible epub" type="application/epub+zip" />
+				<link href="https://standardebooks.org/ebooks/marcus-aurelius/meditations/george-long/downloads/marcus-aurelius_meditations_george-long_advanced.epub?source=feed" length="693312" rel="enclosure" title="Advanced epub" type="application/epub+zip" />
+				<link href="https://standardebooks.org/ebooks/marcus-aurelius/meditations/george-long/downloads/marcus-aurelius_meditations_george-long.kepub.epub?source=feed" length="630764" rel="enclosure" title="Kobo Kepub epub" type="application/kepub+zip" />
+				<link href="https://standardebooks.org/ebooks/marcus-aurelius/meditations/george-long/downloads/marcus-aurelius_meditations_george-long.azw3?source=feed" length="743314" rel="enclosure" title="Amazon Kindle azw3" type="application/x-mobipocket-ebook" />
+				<link href="https://standardebooks.org/ebooks/marcus-aurelius/meditations/george-long/text/single-page" length="402218" rel="enclosure" title="XHTML" type="application/xhtml+xml" />
+	</entry>
+			</feed>
